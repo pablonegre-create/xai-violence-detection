@@ -1,0 +1,7 @@
+# sbatch rejects scripts with CRLF ("Batch script contains DOS line breaks"),
+# so force LF on everything that ends up on the cluster.
+*.sh   text eol=lf
+*.py   text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf

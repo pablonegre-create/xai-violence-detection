@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# artefacts
+ckpt/
+features/
+logs/
+results/*.json
+!results/.gitkeep
+*.h5
+*.keras
+*.npy
+*.pt
+
+# data never goes in the repo
+data/
+datasets/
+
+.DS_Store

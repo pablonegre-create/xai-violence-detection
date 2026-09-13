@@ -1,0 +1,44 @@
+# Defaults for the RLVS runs. Anything here can be overridden on the CLI.
+
+data:
+  n_frames: 40          # sampled at equal intervals over the whole clip
+  input_size: 128       # 224 would triple the per-frame cost for little gain
+  split: [0.7, 0.1, 0.2]
+  seed: 0
+
+backbone:
+  name: mobilenetv2
+  weights: imagenet
+  finetune_layers: 5    # counted from the top; 'all' or 0 also valid
+  lr: 1.0e-4
+  epochs: 15
+  steps_per_epoch: 200
+  batch: 32
+
+head:
+  lstm_units: [64, 32]
+  dense_units: [64, 32]
+  batch_norm: false     # helps with 5 unfrozen layers, hurts with all of them
+  dropout: 0.3
+  lr: 1.0e-3
+  epochs: 60
+  batch: 16
+  seeds: 5
+
+keyframe:
+  min_people: 2
+  motion_k: 3.0         # threshold = median + k * MAD of the quiet frames
+  min_gap: 5
+  yolo_weights: yolo12n.pt
+  yolo_conf: 0.35
+
+xai:
+  block: 5              # ~1/6 s at 30 fps
+  gradcam_layers: [block_2_add, block_5_add, block_9_add, block_12_add, out_relu]
+  shapley_samples: 40
+  explain_clips: 200
+
+robustness:
+  severities: [1, 3, 5]
+  subset: 300
+  fgsm_eps_255: [1, 2, 4, 8]
