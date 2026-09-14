@@ -124,7 +124,31 @@ python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU')
 exit                                            # frees the GPU
 ```
 
-Expect one `PhysicalDevice(..., device_type='GPU')` entry.
+Expect one `PhysicalDevice(..., device_type='GPU')` entry, together with this
+warning:
+
+```
+TensorFlow was not built with CUDA kernel binaries compatible with compute
+capability 9.0. CUDA kernels will be jit-compiled from PTX, which could take
+30 minutes or longer.
+```
+
+That is expected: the TF 2.15 wheel carries no sm_90 cubins, so on an H100
+every kernel is compiled from PTX at first use, in every new process. Persist
+the compiled kernels so only the first run pays for it — the job files already
+export these, but set them in your interactive session too:
+
+```bash
+export CUDA_CACHE_PATH=$HOME/.nv/ComputeCache
+export CUDA_CACHE_MAXSIZE=4294967296          # 4 GB, the maximum CUDA accepts
+python scripts/warm_cuda_cache.py
+```
+
+The first call takes tens of minutes; run the script a second time and it
+should finish in seconds. Do this once, from an interactive session, before
+submitting anything — otherwise the first batch job burns that time out of its
+own walltime, and `run_ablation.py`, which spawns one subprocess per variant,
+would pay it repeatedly.
 
 ### Pretrained weights
 

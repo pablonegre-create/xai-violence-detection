@@ -23,6 +23,13 @@ conda activate xai_vd
 export PYTHONUNBUFFERED=1
 export TF_CPP_MIN_LOG_LEVEL=2
 
+# The TF 2.15 wheel carries no sm_90 cubins, so every kernel is JIT-compiled
+# from PTX on an H100 - 30 min or more per process on a cold cache. Persist the
+# compiled kernels in $HOME (visible from the compute nodes) so only the very
+# first run pays for it.
+export CUDA_CACHE_PATH=$HOME/.nv/ComputeCache
+export CUDA_CACHE_MAXSIZE=4294967296
+
 cd $HOME/xai-vd
 mkdir -p logs results
 
