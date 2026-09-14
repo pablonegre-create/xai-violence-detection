@@ -95,6 +95,14 @@ def main():
     if args.adversarial:
         print("\nFGSM on the frame classifier")
         frame_cls = build_classifier_head(cnn)
+        cls_w = args.backbone_weights.replace(".h5", "_cls.h5")
+        if os.path.exists(cls_w):
+            frame_cls.load_weights(cls_w)
+            print("  loaded frame classifier from", cls_w)
+        else:
+            print("  WARNING: %s not found; the final dense layer is random "
+                  "and the attack is not meaningful. Re-run "
+                  "finetune_backbone.py to produce it." % cls_w)
         adv_rows = []
         for eps in (1 / 255., 2 / 255., 4 / 255., 8 / 255.):
             adv = []

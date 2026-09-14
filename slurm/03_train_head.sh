@@ -23,10 +23,13 @@ export PYTHONUNBUFFERED=1
 export TF_CPP_MIN_LOG_LEVEL=2
 
 cd $HOME/xai-vd
-mkdir -p logs results
+mkdir -p logs results ckpt
 
+# --ckpt-prefix is not optional in practice: jobs 06 and 07 load
+# ckpt/head_<dataset>_seed0.h5 produced here.
 python scripts/train.py \
     --features features/"$DS" \
     --seeds 5 \
     --out results/main_"$DS".json \
-    --save-preds results/preds_"$DS".json
+    --save-preds results/preds_"$DS".json \
+    --ckpt-prefix ckpt/head_"$DS"

@@ -95,10 +95,18 @@ def main():
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     cnn.save_weights(args.out)
+
+    # The frame classifier is kept too: the FGSM evaluation attacks it, and
+    # rebuilding it from the backbone alone would leave the final dense layer
+    # randomly initialised, which makes the attack meaningless.
+    cls_out = args.out.replace(".h5", "_cls.h5")
+    model.save_weights(cls_out)
+
     json.dump({"finetune": args.finetune, "trainable_params": trainable,
-               "backbone": args.backbone, "seed": args.seed},
+               "backbone": args.backbone, "seed": args.seed,
+               "classifier_weights": os.path.basename(cls_out)},
               open(args.out + ".json", "w"), indent=2)
-    print("saved", args.out)
+    print("saved", args.out, "and", cls_out)
 
 
 if __name__ == "__main__":

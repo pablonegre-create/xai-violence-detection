@@ -40,6 +40,9 @@ def main():
     ap.add_argument("--head", default="bilstm",
                     choices=["bilstm", "bigru", "avgpool"])
     ap.add_argument("--save-preds", default=None)
+    ap.add_argument("--ckpt-prefix", default=None,
+                    help="save head weights as <prefix>_seed<N>.h5; the XAI and "
+                         "robustness scripts need these")
     args = ap.parse_args()
 
     import tensorflow as tf
@@ -88,6 +91,12 @@ def main():
         model.fit(X[tr], Y[tr], validation_data=(X[va], Y[va]),
                   epochs=args.epochs, batch_size=args.batch,
                   callbacks=cbs, verbose=0)
+
+        if args.ckpt_prefix:
+            os.makedirs(os.path.dirname(args.ckpt_prefix) or ".", exist_ok=True)
+            w = "%s_seed%d.h5" % (args.ckpt_prefix, seed)
+            model.save_weights(w)
+            print("  saved", w)
 
         prob = model.predict(X[te], batch_size=64, verbose=0)
         pred = prob.argmax(1)
