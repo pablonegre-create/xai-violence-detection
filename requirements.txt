@@ -1,7 +1,13 @@
-# TF 2.15 is the last version that works with the prebuilt wheels below;
-# numpy 2.x breaks them, hence the pin.
+# Core pipeline (jobs 01-08). TF 2.15 is the last version that works with the
+# prebuilt wheels below; numpy 2.x breaks them, hence the pin.
+#
+# On Linux with a GPU, install TensorFlow as:
+#     pip install "tensorflow[and-cuda]==2.15.1"
+# The plain `tensorflow` wheel does not ship CUDA, so it will silently fall back
+# to CPU. Verify from a compute node, not from login:
+#     python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 numpy<2
-tensorflow==2.15.1        # tensorflow-cpu if you have no GPU
+tensorflow==2.15.1        # tensorflow-cpu if you have no GPU at all
 opencv-python-headless>=4.8
 scikit-learn>=1.3
 scipy>=1.10
@@ -9,6 +15,7 @@ pandas>=2.0
 matplotlib>=3.7
 tqdm
 
-# optional
-ultralytics>=8.3          # YOLO person detection for the keyframe stage
-timeshap>=1.0             # reference TimeSHAP; falls back to sampling if absent
+# timeshap is used by the temporal explainer comparison (job 06). It pulls shap
+# and numba, but no deep learning framework. Without it the comparison still
+# runs and falls back to a sampling-based Shapley estimator, saying so.
+timeshap>=1.0

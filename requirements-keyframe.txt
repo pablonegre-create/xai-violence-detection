@@ -1,0 +1,14 @@
+# Only needed to run the keyframe stage (src/keyframe/yolo_person.py) or the
+# YOLO qualitative figures. None of the SLURM jobs 01-08 use it.
+#
+# Install in a SEPARATE environment if possible: ultralytics pulls torch and a
+# full CUDA stack (~2.5 GB) whose CUDA major version may not match the one
+# TensorFlow expects, and neither library needs the other here.
+#
+#     conda create -n xai_vd_yolo python=3.10 -y
+#     conda activate xai_vd_yolo
+#     pip install -r requirements-keyframe.txt
+
+ultralytics>=8.3
+opencv-python-headless>=4.8
+numpy<2
