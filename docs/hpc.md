@@ -76,6 +76,16 @@ rm Miniconda3-latest-Linux-x86_64.sh
 exit                                        # reconnect so conda is on PATH
 ```
 
+Conda's package cache is configured to `/scratch/$USER/conda_pkgs`, but
+`/scratch` currently has no per-user directories and is not writable, so
+`conda create` fails with `NoWritablePkgsDirError`. Add a writable cache in
+your home directory:
+
+```bash
+mkdir -p $HOME/.conda/pkgs
+conda config --add pkgs_dirs $HOME/.conda/pkgs
+```
+
 Then:
 
 ```bash
@@ -85,23 +95,39 @@ cd ~/xai-vd
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pins `tensorflow==2.15.1`; on a GPU node that wheel already
-carries CUDA support. Check it sees the H100 from a compute node, not from
+**Check that TensorFlow actually sees a GPU before queueing anything.** The
+plain `tensorflow` wheel does not ship CUDA on Linux, so it will silently run
+on CPU and turn a 4 h job into days. Test from a compute node, never from
 login:
 
 ```bash
-srun --partition=short --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=00:10:00 \
+srun --partition=short --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=00:15:00 \
      --pty bash -i
 conda activate xai_vd
 python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
-exit
 ```
 
-Keep large caches off `/home`:
+If that prints `[]`:
 
 ```bash
-mkdir -p /scratch/$USER/hf_cache
-echo 'export HF_HOME=/scratch/$USER/hf_cache' >> ~/.bashrc
+pip install "tensorflow[and-cuda]==2.15.1"
+```
+
+and re-check. If it is still empty, look for a system module
+(`module avail 2>&1 | grep -i cuda`) and add the matching `module load` line to
+each job file, right after `conda activate`. Leave the session with `exit` — it
+holds a GPU while open.
+
+`requirements-keyframe.txt` (ultralytics, torch) is deliberately separate: no
+job from 01 to 08 uses it, and it pulls a full CUDA stack whose major version
+may not match the one TensorFlow wants. Install it in its own environment only
+if you need the keyframe stage.
+
+Large caches: `/scratch` is not writable, so keep them in home, which is on
+Lustre:
+
+```bash
+echo 'export HF_HOME=$HOME/.cache/huggingface' >> ~/.bashrc
 ```
 
 ## 3. Datasets
@@ -109,7 +135,7 @@ echo 'export HF_HOME=/scratch/$USER/hf_cache' >> ~/.bashrc
 Not redistributed with the code. Roughly 8 GB in total.
 
 ```bash
-export DATA_ROOT=$HOME/data          # or /scratch/$USER/data
+export DATA_ROOT=$HOME/data          # /scratch is not writable
 mkdir -p $DATA_ROOT && cd $DATA_ROOT
 
 pip install kaggle                   # needs ~/.kaggle/kaggle.json from your account
@@ -262,6 +288,6 @@ Checkpoints and feature caches stay on the cluster — the caches are several GB
   `.bash_profile`. Every job file therefore sources conda explicitly before
   activating the env; the first lines are not redundant.
 - Anything written to a compute node's local disk disappears when the job ends.
-  Write to `$HOME` or `/scratch/$USER`.
+  Write to `$HOME`; `/scratch` has no per-user directories at present.
 - `--partition=all` no longer exists; jobs referring to it are rejected.
 - Video decoding, not the GPU, is the bottleneck in job 02 — give it the CPUs.
