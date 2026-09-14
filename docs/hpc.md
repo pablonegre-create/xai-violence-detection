@@ -95,28 +95,51 @@ cd ~/xai-vd
 pip install -r requirements.txt
 ```
 
-**Check that TensorFlow actually sees a GPU before queueing anything.** The
-plain `tensorflow` wheel does not ship CUDA on Linux, so it will silently run
-on CPU and turn a 4 h job into days. Test from a compute node, never from
-login:
+### CUDA
+
+The plain `tensorflow` wheel ships no CUDA on Linux, so out of the box it runs
+on CPU and a 4 h job becomes days. Install the CUDA 12 wheels **from the login
+node** — compute nodes have no outbound network and the download will fail
+there:
+
+```bash
+# login node
+conda activate xai_vd
+pip install "tensorflow[and-cuda]==2.15.1"      # ~2 GB of nvidia-*-cu12 wheels
+```
+
+Do not use the `CUDA/13.3.0` and `cuDNN/9.23.0.39` environment modules for
+this: TensorFlow 2.15 links against `libcudart.so.12` and `libcudnn.so.8`,
+while those modules provide the `.13` and `.9` sonames. The GPU driver itself
+is backward compatible, so the pip CUDA 12 runtime works on these H100s.
+
+Then verify on a compute node, never on login:
 
 ```bash
 srun --partition=short --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=00:15:00 \
      --pty bash -i
+nvidia-smi                                      # driver visible?
 conda activate xai_vd
 python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+exit                                            # frees the GPU
 ```
 
-If that prints `[]`:
+Expect one `PhysicalDevice(..., device_type='GPU')` entry.
+
+### Pretrained weights
+
+Also because compute nodes have no network, Keras cannot download the ImageNet
+backbone weights from inside a job. Populate the cache once from login:
 
 ```bash
-pip install "tensorflow[and-cuda]==2.15.1"
+python scripts/prefetch_weights.py
 ```
 
-and re-check. If it is still empty, look for a system module
-(`module avail 2>&1 | grep -i cuda`) and add the matching `module load` line to
-each job file, right after `conda activate`. Leave the session with `exit` — it
-holds a GPU while open.
+That writes `~/.keras/models/mobilenet_v2_weights_..._1.0_128_no_top.h5`, which
+is in your home directory and therefore visible from the compute nodes. Jobs
+01, 02 and 07 fail without it. Add `--backbones mobilenetv2 mobilenetv3small
+efficientnetb0 resnet50 vgg19` if you intend to run the backbone comparison
+with trained weights.
 
 `requirements-keyframe.txt` (ultralytics, torch) is deliberately separate: no
 job from 01 to 08 uses it, and it pulls a full CUDA stack whose major version
@@ -287,6 +310,11 @@ Checkpoints and feature caches stay on the cluster — the caches are several GB
 - `sbatch` runs a non-interactive shell, which reads neither `.bashrc` nor
   `.bash_profile`. Every job file therefore sources conda explicitly before
   activating the env; the first lines are not redundant.
+- Compute nodes have no outbound network: pip, Kaggle and Keras weight
+  downloads all fail inside a job. Do every download from the login node.
+- Slurm is configured with `TMPDIR=/scratch/$USER/conda_tmp`, which does not
+  exist; it falls back to `/tmp` with a warning at the top of every job. It is
+  harmless, but `export TMPDIR=$HOME/tmp` silences it if anything trips on it.
 - Anything written to a compute node's local disk disappears when the job ends.
   Write to `$HOME`; `/scratch` has no per-user directories at present.
 - `--partition=all` no longer exists; jobs referring to it are rejected.
