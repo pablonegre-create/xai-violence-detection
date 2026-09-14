@@ -144,8 +144,11 @@ export CUDA_CACHE_MAXSIZE=4294967296          # 4 GB, the maximum CUDA accepts
 python scripts/warm_cuda_cache.py
 ```
 
-The first call takes tens of minutes; run the script a second time and it
-should finish in seconds. Do this once, from an interactive session, before
+Measured on cn001: 51.2 s cold, 7.3 s warm (conv 21.8 -> 2.0 s, cuDNN LSTM
+17.0 -> 1.2 s, backward 12.3 -> 4.1 s), leaving ~117 MB in the cache. The
+`compute capability 9.0` warning keeps printing regardless, because TF emits
+it whenever the architecture is absent from its cubin list; the timings are
+what tell you the cache is working. Do this once, from an interactive session, before
 submitting anything — otherwise the first batch job burns that time out of its
 own walltime, and `run_ablation.py`, which spawns one subprocess per variant,
 would pay it repeatedly.
@@ -334,6 +337,15 @@ Checkpoints and feature caches stay on the cluster — the caches are several GB
 - `sbatch` runs a non-interactive shell, which reads neither `.bashrc` nor
   `.bash_profile`. Every job file therefore sources conda explicitly before
   activating the env; the first lines are not redundant.
+- `Start cannot spawn child process: No such file or directory` comes from XLA
+  looking for `ptxas`. It is harmless - the driver JIT takes over - but if you
+  want XLA to compile properly, point it at the pip CUDA toolkit:
+
+  ```bash
+  SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+  export XLA_FLAGS=--xla_gpu_cuda_data_dir=$SITE/nvidia/cuda_nvcc
+  ```
+
 - Compute nodes have no outbound network: pip, Kaggle and Keras weight
   downloads all fail inside a job. Do every download from the login node.
 - Slurm is configured with `TMPDIR=/scratch/$USER/conda_tmp`, which does not
