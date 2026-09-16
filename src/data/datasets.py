@@ -170,24 +170,68 @@ def _search_class_root(root, max_depth=4):
     return None
 
 
-def index_flat(root):
+def check_duplicates(items, tolerance=0.02):
+    """Refuse an index in which the same clip appears more than once.
+
+    Several Kaggle mirrors ship a dataset twice, once at the top level and
+    again inside a differently named wrapper. Training on that silently puts
+    the same clip in the training and the test split, which is exactly the
+    leakage that makes some published numbers on these benchmarks
+    incomparable. Identity is (file name, size): two genuinely different clips
+    almost never agree on both, while byte-identical copies always do.
+    """
+    seen = {}
+    for path, _ in items:
+        try:
+            size = os.path.getsize(path)
+        except OSError:
+            continue
+        seen.setdefault((os.path.basename(path), size), []).append(path)
+
+    dupes = {k: v for k, v in seen.items() if len(v) > 1}
+    if not dupes:
+        return
+
+    n_extra = sum(len(v) - 1 for v in dupes.values())
+    if n_extra <= max(1, int(tolerance * len(items))):
+        return
+
+    sample = list(dupes.values())[:3]
+    dirs = sorted({os.path.dirname(p) for v in dupes.values() for p in v})
+    raise RuntimeError(
+        "%d of %d clips are duplicates (%d distinct names appear more than "
+        "once).\nThis mirror ships the dataset more than once; using it would "
+        "put the same\nclip in both the training and the test split.\n"
+        "Directories involved:\n  %s\nFor example:\n  %s\n"
+        "Delete the redundant copy, then re-run."
+        % (n_extra, len(items), len(dupes),
+           "\n  ".join(dirs[:6]),
+           "\n  ".join(sample[0][:2] if sample else [])))
+
+
+def index_flat(root, allow_duplicates=False):
     """Walk a two-class directory tree and return [(path, label), ...]."""
     base = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS)
 
+    def _done(items):
+        if items and not allow_duplicates:
+            check_duplicates(items)
+        return items
+
     items = [(p, lab) for d, lab in _class_dirs(base) for p in _videos_under(d)]
     if items:
-        return items
+        return _done(items)
 
     # distributed as numbered folds, classes one level deeper; pool them.
     # The official assignment stays available through index_folds().
     folds = index_folds(root)
     if folds:
-        return [x for f in sorted(folds) for x in folds[f]]
+        return _done([x for f in sorted(folds) for x in folds[f]])
 
     # every clip in one directory, class encoded in the file name
     items = index_by_filename(base)
     if items:
-        return items
+        return _done(items)
 
     # last resort: the class folders are nested behind something that is not a
     # single-child chain, so go looking for them
@@ -196,7 +240,7 @@ def index_flat(root):
         items = [(p, lab) for d, lab in _class_dirs(found)
                  for p in _videos_under(d)]
         if items:
-            return items
+            return _done(items)
 
     raise RuntimeError(
         "no videos found under %s -- run scripts/inspect_dataset.py on it; "
