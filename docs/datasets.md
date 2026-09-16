@@ -80,6 +80,44 @@ case-insensitively against a list of known aliases (`Violence`, `fight`,
 unrecognised class name is not — add it to `VIOLENT_DIRS` / `PEACEFUL_DIRS`
 if you hit one.
 
+## Duplicate clips in the published mirrors
+
+Every one of these benchmarks contains byte-identical clips stored under
+different names. Counted with :
+
+| dataset | indexed | duplicate groups | unique |
+|---|---|---|---|
+| RLVS | 2000 | 14 (one spanning both classes) | 1986 |
+| Hockey Fights | 1000 | 3 | 997 |
+| Movies Fight | 198 | 0 after cleaning the mirror | 198 |
+| Violent Flows | 246 | 1 | 245 |
+| RWF-2000 train | 1600 | 5 | 1595 |
+| RWF-2000 val | 400 | 0 | 400 |
+
+A random 70/10/20 split puts roughly 46% of each duplicate pair into two
+different partitions, so the model would be tested on clips it had memorised.
+ and  therefore assign a whole duplicate group
+to one partition. The clip counts stay as published, so the numbers remain
+comparable with the literature, but the leakage is gone. Pass
+ to reproduce the naive split.
+
+Two cases need judgement rather than a rule:
+
+- **RLVS** contains one clip stored under both labels ( and
+   are the same file). That is an annotation contradiction, not a
+  duplicate. It is one pair in 2000 and is left in place; the group is assigned
+  to a single partition by majority label.
+- **Violent Flows** contains one clip harvested under two search keywords
+  ( and ).
+  This is in the original distribution, and both copies sit in the same fold
+  and class, so the official protocol never splits them. Left untouched.
+
+The Movies Fight mirror () is the one that needs fixing before use:
+it ships three redundant copies (two in , one in ) and is
+missing one clip per class relative to the 100+100 of Nievas et al. After
+removing the redundant copies it holds 198 clips, 99 per class, and that is
+what should be reported rather than 200.
+
 ## Preprocessing
 
 40 frames per clip, sampled at equal intervals across the whole video, resized

@@ -23,6 +23,7 @@ head. See docs/datasets.md.
 
 import os
 import glob
+import hashlib
 
 import numpy as np
 
@@ -304,41 +305,117 @@ def load_clip(path, n_frames=40, size=128, sampling="uniform"):
     return (out.reshape(n_frames, size, size, 3).astype("float32") / 255.0)
 
 
-def stratified_split(items, fractions=(0.7, 0.1, 0.2), seed=0):
-    """Split preserving class balance. Returns (train, val, test) lists."""
+def duplicate_groups(items, nbytes=1 << 20):
+    """Group index per item, so that identical clips share a group.
+
+    Every one of these benchmarks contains byte-identical clips stored under
+    different names: 14 pairs in RLVS, 3 in Hockey Fights, 5 in the RWF-2000
+    training split, 1 in Violent Flows. Splitting at random puts roughly 46%
+    of each pair across two partitions, which is how a model ends up being
+    tested on clips it memorised.
+
+    Files are bucketed by size first, so only those that could possibly match
+    are read. Returns a list of group ids parallel to `items`.
+    """
+    by_size = {}
+    for i, (p, _) in enumerate(items):
+        try:
+            by_size.setdefault(os.path.getsize(p), []).append(i)
+        except OSError:
+            by_size.setdefault(-1, []).append(i)
+
+    groups = list(range(len(items)))          # start: everyone alone
+    for size, idx in by_size.items():
+        if len(idx) < 2 or size < 0:
+            continue
+        seen = {}
+        for i in idx:
+            try:
+                with open(items[i][0], "rb") as fh:
+                    key = hashlib.sha1(fh.read(nbytes)).hexdigest()
+            except OSError:
+                continue
+            if key in seen:
+                groups[i] = groups[seen[key]]
+            else:
+                seen[key] = i
+    return groups
+
+
+def stratified_split(items, fractions=(0.7, 0.1, 0.2), seed=0,
+                     group_duplicates=True):
+    """Split preserving class balance. Returns (train, val, test) lists.
+
+    Duplicate clips are kept together, so the same content never appears in
+    two partitions. Pass group_duplicates=False to reproduce the naive split
+    the literature normally uses.
+    """
     rng = np.random.default_rng(seed)
+
+    if group_duplicates:
+        gid = duplicate_groups(items)
+    else:
+        gid = list(range(len(items)))
+
+    # collapse each group to one unit, labelled by its majority class
+    units = {}
+    for (p, y), g in zip(items, gid):
+        units.setdefault(g, []).append((p, y))
+
     by_class = {}
-    for p, y in items:
-        by_class.setdefault(y, []).append((p, y))
+    for g, members in units.items():
+        # a group can straddle both classes when the mirror stores the same
+        # clip under both labels (RLVS has one such pair); majority wins, and
+        # the whole group still lands in a single partition
+        lab = 1 if sum(y for _, y in members) * 2 >= len(members) else 0
+        by_class.setdefault(lab, []).append(members)
 
     train, val, test = [], [], []
-    for y, lst in by_class.items():
-        lst = list(lst)
-        rng.shuffle(lst)
-        n = len(lst)
+    for y, groups in by_class.items():
+        groups = list(groups)
+        rng.shuffle(groups)
+        n = sum(len(g) for g in groups)
         n_tr = int(round(fractions[0] * n))
         n_va = int(round(fractions[1] * n))
-        train += lst[:n_tr]
-        val += lst[n_tr:n_tr + n_va]
-        test += lst[n_tr + n_va:]
+
+        acc, bucket = 0, train
+        for g in groups:
+            if bucket is train and acc >= n_tr:
+                bucket, acc = val, 0
+            if bucket is val and acc >= n_va:
+                bucket = test
+            bucket += g
+            acc += len(g)
 
     rng.shuffle(train); rng.shuffle(val); rng.shuffle(test)
     return train, val, test
 
 
-def kfold_split(items, k=5, seed=0):
-    """5-fold CV, the convention for Hockey Fights and Violent Flows."""
+def kfold_split(items, k=5, seed=0, group_duplicates=True):
+    """5-fold CV, the convention for Hockey Fights and Violent Flows.
+
+    Duplicate clips go into the same fold, for the same reason as in
+    stratified_split: otherwise a copy in the training folds makes the test
+    fold easier than it should be.
+    """
     rng = np.random.default_rng(seed)
+    gid = duplicate_groups(items) if group_duplicates else list(range(len(items)))
+
+    units = {}
+    for (p, y), g in zip(items, gid):
+        units.setdefault(g, []).append((p, y))
+
     by_class = {}
-    for p, y in items:
-        by_class.setdefault(y, []).append((p, y))
+    for members in units.values():
+        lab = 1 if sum(y for _, y in members) * 2 >= len(members) else 0
+        by_class.setdefault(lab, []).append(members)
 
     folds = [[] for _ in range(k)]
-    for y, lst in by_class.items():
-        lst = list(lst)
-        rng.shuffle(lst)
-        for i, item in enumerate(lst):
-            folds[i % k].append(item)
+    for y, groups in by_class.items():
+        groups = list(groups)
+        rng.shuffle(groups)
+        for i, g in enumerate(groups):
+            folds[i % k] += g
 
     for i in range(k):
         test = folds[i]

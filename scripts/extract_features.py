@@ -46,6 +46,13 @@ def main():
     else:
         items = index_flat(args.root)
         tr, va, te = stratified_split(items, seed=args.seed)
+        # stratified_split keeps byte-identical clips in one partition; report
+        # how many there were so the log records it
+        from src.data.datasets import duplicate_groups
+        gid = duplicate_groups(items)
+        n_dup = len(items) - len(set(gid))
+        if n_dup:
+            print("%d duplicate clip(s) kept within a single split" % n_dup)
         split_of = {}
         for name, lst in (("train", tr), ("val", va), ("test", te)):
             split_of.update({p: name for p, _ in lst})
