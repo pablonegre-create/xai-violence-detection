@@ -88,8 +88,28 @@ def main():
         if c[1] == 0 or c[0] == 0:
             print("  WARNING: one class is empty, the layout is not what the"
                   " loader expects")
+        if c[1] != c[0]:
+            print("  note: the classes are not balanced (%d vs %d). All five"
+                  % (c[1], c[0]))
+            print("  datasets used here should be, so check for a stray or"
+                  " duplicated file.")
+
+        # where did each clip come from, and are any duplicated
+        by_dir = Counter(os.path.dirname(os.path.relpath(p, args.root))
+                         for p, _ in items)
+        print("  clips per source directory:")
+        for d, n in sorted(by_dir.items()):
+            print("    %-52s %4d" % ((d or ".")[:52], n))
+
+        names = Counter(os.path.basename(p) for p, _ in items)
+        dupes = [n for n, k in names.items() if k > 1]
+        if dupes:
+            print("  %d file name(s) appear more than once:" % len(dupes))
+            for n in dupes[:5]:
+                print("    %s x%d" % (n[:60], names[n]))
+
         for p, y in items[:3]:
-            print("    [%d] %s" % (y, os.path.relpath(p, args.root)[:80]))
+            print("    e.g. [%d] %s" % (y, os.path.relpath(p, args.root)[:76]))
     except Exception as e:
         print("  failed: %s" % e)
 

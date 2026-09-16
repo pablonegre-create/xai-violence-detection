@@ -7,8 +7,13 @@ either violent or not. The loaders only need a root directory laid out as
       Violence/    (or fight/, violent/, ...)
       NonViolence/ (or nonfight/, normal/, ...)
 
-which is how RLVS, Hockey Fights, Movies and Violent Flows ship on Kaggle.
-RWF-2000 already comes with train/ and val/ folders and is handled separately.
+The mirrors are not consistent about this, so index_flat() tries, in order:
+class directories at the top; the same behind one or more wrapper directories;
+numbered cross-validation folds with the classes one level deeper (Violent
+Flows); the class encoded in the file name with every clip in one directory
+(Hockey Fights, fi*.avi versus no*.avi); and finally a search for class folders
+anywhere under the root. RWF-2000 ships its own train/val split and is handled
+by index_rwf2000().
 
 UCF-Crime and XD-Violence are deliberately *not* here: they are untrimmed,
 weakly labelled anomaly-detection benchmarks scored with AUC/AP, so a trimmed
@@ -34,6 +39,17 @@ PEACEFUL_DIRS = {"nonviolence", "nofight", "nonfight", "non-violence",
                  "nonviolent", "normal", "noviolence", "noviolent"}
 
 VIDEO_EXT = ("*.mp4", "*.avi", "*.mpg", "*.mpeg", "*.mov", "*.mkv")
+
+# Some datasets put every clip in a single directory and encode the class in
+# the file name instead. Hockey Fights is the canonical case: fi1_xvid.avi
+# versus no1_xvid.avi. A pair is only accepted when the two prefixes partition
+# the whole set, so a coincidental prefix cannot mislabel anything.
+FILENAME_PREFIXES = [
+    ("fi", "no"),            # Hockey Fights
+    ("fight", "nofight"),
+    ("v_", "nv_"),
+    ("violence", "nonviolence"),
+]
 
 
 def _label_of(dirname):
@@ -109,25 +125,83 @@ def index_folds(root):
     return folds or None
 
 
+def index_by_filename(root):
+    """Label by file-name prefix, for datasets with no class directories.
+
+    Returns [] unless one of FILENAME_PREFIXES partitions every video found
+    under root. Partial coverage is rejected rather than guessed at: a clip
+    labelled by accident is worse than a loader that refuses to run.
+    """
+    vids = _videos_under(root)
+    if not vids:
+        return []
+
+    names = [os.path.basename(p).lower() for p in vids]
+    for vpre, ppre in FILENAME_PREFIXES:
+        v = [n.startswith(vpre) for n in names]
+        p = [n.startswith(ppre) for n in names]
+        if any(a and b for a, b in zip(v, p)):
+            continue                     # ambiguous, prefixes overlap
+        if not (any(v) and any(p)):
+            continue
+        if all(a or b for a, b in zip(v, p)):
+            return [(path, 1 if a else 0) for path, a, b in zip(vids, v, p)]
+    return []
+
+
+def _search_class_root(root, max_depth=4):
+    """Shallowest directory anywhere under root that holds class folders."""
+    from collections import deque
+
+    q = deque([(root, 0)])
+    while q:
+        cur, d = q.popleft()
+        if _class_dirs(cur):
+            return cur
+        if d >= max_depth:
+            continue
+        try:
+            for s in sorted(os.listdir(cur)):
+                full = os.path.join(cur, s)
+                if os.path.isdir(full):
+                    q.append((full, d + 1))
+        except OSError:
+            continue
+    return None
+
+
 def index_flat(root):
     """Walk a two-class directory tree and return [(path, label), ...]."""
-    root = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS)
+    base = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS)
 
-    items = [(p, lab) for d, lab in _class_dirs(root) for p in _videos_under(d)]
+    items = [(p, lab) for d, lab in _class_dirs(base) for p in _videos_under(d)]
+    if items:
+        return items
 
-    if not items:
-        # datasets distributed as numbered folds keep the classes one level
-        # deeper; pool them, the fold assignment is available via index_folds()
-        folds = index_folds(root)
-        if folds:
-            items = [x for f in sorted(folds) for x in folds[f]]
+    # distributed as numbered folds, classes one level deeper; pool them.
+    # The official assignment stays available through index_folds().
+    folds = index_folds(root)
+    if folds:
+        return [x for f in sorted(folds) for x in folds[f]]
 
-    if not items:
-        raise RuntimeError(
-            "no videos found under %s -- run scripts/inspect_dataset.py on it; "
-            "if the class directories have unusual names, add them to "
-            "VIOLENT_DIRS / PEACEFUL_DIRS in this module" % root)
-    return items
+    # every clip in one directory, class encoded in the file name
+    items = index_by_filename(base)
+    if items:
+        return items
+
+    # last resort: the class folders are nested behind something that is not a
+    # single-child chain, so go looking for them
+    found = _search_class_root(root)
+    if found:
+        items = [(p, lab) for d, lab in _class_dirs(found)
+                 for p in _videos_under(d)]
+        if items:
+            return items
+
+    raise RuntimeError(
+        "no videos found under %s -- run scripts/inspect_dataset.py on it; "
+        "if the class directories have unusual names, add them to "
+        "VIOLENT_DIRS / PEACEFUL_DIRS in this module" % root)
 
 
 def index_rwf2000(root):
