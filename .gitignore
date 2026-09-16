@@ -15,8 +15,10 @@ results/*.json
 *.npy
 *.pt
 
-# data never goes in the repo
-data/
-datasets/
+# Datasets never go in the repo. Anchored to the repo root with a leading
+# slash: a bare `data/` also matches src/data/, which silently excluded the
+# dataset loader package from the first push.
+/data/
+/datasets/
 
 .DS_Store
