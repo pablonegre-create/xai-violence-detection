@@ -42,8 +42,31 @@ def _label_of(dirname):
     return None
 
 
+def _descend(root, wanted):
+    """Follow single-child wrapper directories until `wanted` appears.
+
+    Kaggle mirrors are inconsistent about how deeply they nest: one ships
+    `Violence/` at the top, another wraps everything in `RWF-2000/`, a third
+    adds a duplicate of the dataset name. Rather than make the caller guess,
+    walk down while there is exactly one plausible way to go.
+    """
+    cur = root
+    for _ in range(4):
+        if any(os.path.isdir(os.path.join(cur, w)) for w in wanted):
+            return cur
+        subs = [s for s in sorted(os.listdir(cur))
+                if os.path.isdir(os.path.join(cur, s))]
+        if len(subs) != 1:
+            break
+        cur = os.path.join(cur, subs[0])
+    return root
+
+
 def index_flat(root):
     """Walk a two-class directory tree and return [(path, label), ...]."""
+    root = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS |
+                    {"Violence", "NonViolence", "fight", "nofight"})
+
     items = []
     for sub in sorted(os.listdir(root)):
         full = os.path.join(root, sub)
@@ -57,17 +80,23 @@ def index_flat(root):
                                       recursive=True)):
                 items.append((p, label))
     if not items:
-        raise RuntimeError("no videos found under %s" % root)
+        raise RuntimeError(
+            "no videos found under %s -- check the class directory names "
+            "against VIOLENT_DIRS / PEACEFUL_DIRS in this module" % root)
     return items
 
 
 def index_rwf2000(root):
     """RWF-2000 ships with its own split, so honour it."""
+    root = _descend(root, {"train", "val", "test"})
+
     out = {}
     for split, name in (("train", "train"), ("test", "val")):
         d = os.path.join(root, name)
         if not os.path.isdir(d):
             d = os.path.join(root, split)
+        if not os.path.isdir(d):
+            raise RuntimeError("no %s/ split under %s" % (name, root))
         out[split] = index_flat(d)
     return out
 

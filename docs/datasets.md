@@ -43,6 +43,21 @@ rule survive a domain change — on data where the comparison is meaningful.
 
 ## Getting the data
 
+The RWF-2000 mirror will not extract with `--unzip`. Some of its entries have
+names that were mangled on the way in (Cyrillic re-encoded through CP437) and
+exceed the 255-byte limit Linux puts on a path component, so the extraction
+aborts with `OSError: [Errno 36] File name too long`, leaving the dataset half
+written. Download it without extracting and use the helper instead:
+
+```bash
+kaggle datasets download -d vulamnguyen/rwf2000 -p rwf2000        # no --unzip
+python scripts/extract_dataset_zip.py rwf2000/rwf2000.zip -o rwf2000
+```
+
+The helper replaces over-long basenames with a short hash and records the
+mapping in `_renamed.csv`. Only the parent directory carries the label, so the
+names themselves do not matter.
+
 ```bash
 export DATA_ROOT=$HOME/data
 mkdir -p $DATA_ROOT && cd $DATA_ROOT
