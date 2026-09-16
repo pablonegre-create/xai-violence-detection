@@ -67,6 +67,10 @@ kaggle datasets download -d vulamnguyen/rwf2000 -p rwf2000 --unzip
 kaggle datasets download -d yassershrief/hockey-fight-vidoes -p hockey --unzip
 kaggle datasets download -d naveenk903/movies-fight-detection-dataset -p movies --unzip
 # Violent Flows: request from https://www.openu.ac.il/home/hassner/data/violentflows/
+# It arrives as movies.rar (158 MB). The classification benchmark is that file;
+# 21VideosForDetection.rar is a different task and is not used here. The two
+# CSVs are source metadata (YouTube URLs and time ranges), not needed to train.
+#   tar -xf movies.rar -C violentflows/        # bsdtar reads RAR v4
 ```
 
 Roughly 8 GB in total. The Kaggle mirrors nest the class folders differently
@@ -83,6 +87,19 @@ to 128×128, scaled to [0, 1]. Uniform sampling rather than a fixed-rate window
 means a 2-second clip and a 10-second clip both become 40 frames, at the cost
 of a different effective frame rate — acceptable here because all five
 datasets contain short clips (2–10 s).
+
+Violent Flows is the one dataset where the 40-frame budget bites: its clips run
+26-163 frames (median 90), and 11 of the 246 fall below 40. Uniform sampling
+then repeats frames - the shortest clip yields 24 distinct frames out of 40 -
+which is nearest-neighbour temporal upsampling rather than an error. It is
+worth remembering when reading the per-dataset numbers, since the temporal
+attribution has correspondingly less to work with there.
+
+It also ships as five numbered directories, which are the official
+cross-validation folds with the classes one level deeper (50/50/50/48/48,
+balanced 123/123). `index_flat` pools them; `index_folds` returns the official
+assignment if you want to reproduce the published protocol exactly rather than
+regenerate folds.
 
 128×128 rather than MobileNetV2's native 224×224 is a deliberate cost
 decision: it cuts the per-frame FLOPs by a factor of ~3 and still leaves a
