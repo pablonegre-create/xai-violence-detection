@@ -26,9 +26,12 @@ try:
 except ImportError:
     cv2 = None
 
-VIOLENT_DIRS = {"violence", "fight", "fights", "violent", "vio", "1"}
+# Bare "0"/"1" are deliberately absent: Violent Flows is sometimes distributed
+# as five numbered cross-validation folds, and treating "1" as a class name
+# would silently label a whole fold violent.
+VIOLENT_DIRS = {"violence", "fight", "fights", "violent", "vio"}
 PEACEFUL_DIRS = {"nonviolence", "nofight", "nonfight", "non-violence",
-                 "nonviolent", "normal", "noviolence", "0"}
+                 "nonviolent", "normal", "noviolence", "noviolent"}
 
 VIDEO_EXT = ("*.mp4", "*.avi", "*.mpg", "*.mpeg", "*.mov", "*.mkv")
 
@@ -62,27 +65,68 @@ def _descend(root, wanted):
     return root
 
 
-def index_flat(root):
-    """Walk a two-class directory tree and return [(path, label), ...]."""
-    root = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS |
-                    {"Violence", "NonViolence", "fight", "nofight"})
+def _class_dirs(root):
+    """[(path, label)] for the immediate class subdirectories of root."""
+    out = []
+    for sub in sorted(os.listdir(root)):
+        full = os.path.join(root, sub)
+        if os.path.isdir(full):
+            label = _label_of(sub)
+            if label is not None:
+                out.append((full, label))
+    return out
 
-    items = []
+
+def _videos_under(d):
+    found = []
+    for ext in VIDEO_EXT:
+        found += glob.glob(os.path.join(d, "**", ext), recursive=True)
+    return sorted(found)
+
+
+def index_folds(root):
+    """Official cross-validation folds, when the dataset ships with them.
+
+    Violent Flows is distributed as five numbered directories, each holding the
+    two class folders. Returns {fold_name: [(path, label), ...]} or None if the
+    layout is not folded.
+    """
+    root = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS)
+    if _class_dirs(root):
+        return None
+
+    folds = {}
     for sub in sorted(os.listdir(root)):
         full = os.path.join(root, sub)
         if not os.path.isdir(full):
             continue
-        label = _label_of(sub)
-        if label is None:
-            continue
-        for ext in VIDEO_EXT:
-            for p in sorted(glob.glob(os.path.join(full, "**", ext),
-                                      recursive=True)):
-                items.append((p, label))
+        pairs = _class_dirs(full)
+        if not pairs:
+            return None
+        items = [(p, lab) for d, lab in pairs for p in _videos_under(d)]
+        if items:
+            folds[sub] = items
+    return folds or None
+
+
+def index_flat(root):
+    """Walk a two-class directory tree and return [(path, label), ...]."""
+    root = _descend(root, VIOLENT_DIRS | PEACEFUL_DIRS)
+
+    items = [(p, lab) for d, lab in _class_dirs(root) for p in _videos_under(d)]
+
+    if not items:
+        # datasets distributed as numbered folds keep the classes one level
+        # deeper; pool them, the fold assignment is available via index_folds()
+        folds = index_folds(root)
+        if folds:
+            items = [x for f in sorted(folds) for x in folds[f]]
+
     if not items:
         raise RuntimeError(
-            "no videos found under %s -- check the class directory names "
-            "against VIOLENT_DIRS / PEACEFUL_DIRS in this module" % root)
+            "no videos found under %s -- run scripts/inspect_dataset.py on it; "
+            "if the class directories have unusual names, add them to "
+            "VIOLENT_DIRS / PEACEFUL_DIRS in this module" % root)
     return items
 
 
