@@ -151,23 +151,43 @@ def index_by_filename(root):
 
 
 def _search_class_root(root, max_depth=4):
-    """Shallowest directory anywhere under root that holds class folders."""
+    """Shallowest directory anywhere under root that holds class folders.
+
+    Raises if more than one such directory exists at the same depth: that
+    means the caller pointed at a parent holding several datasets, and
+    silently picking one of them is how a backbone ends up fine-tuned on the
+    wrong benchmark.
+    """
     from collections import deque
 
     q = deque([(root, 0)])
     while q:
-        cur, d = q.popleft()
-        if _class_dirs(cur):
-            return cur
-        if d >= max_depth:
-            continue
-        try:
-            for s in sorted(os.listdir(cur)):
-                full = os.path.join(cur, s)
-                if os.path.isdir(full):
-                    q.append((full, d + 1))
-        except OSError:
-            continue
+        # process one whole depth level at a time so ambiguity is visible
+        level, nxt = [], []
+        depth = q[0][1]
+        while q and q[0][1] == depth:
+            level.append(q.popleft()[0])
+
+        hits = [c for c in level if _class_dirs(c)]
+        if len(hits) > 1:
+            raise RuntimeError(
+                "%s contains %d separate datasets:\n  %s\nPoint --root at one "
+                "of them, not at the directory that holds them all."
+                % (root, len(hits), "\n  ".join(sorted(hits)[:8])))
+        if hits:
+            return hits[0]
+
+        if depth >= max_depth:
+            break
+        for cur in level:
+            try:
+                for s in sorted(os.listdir(cur)):
+                    full = os.path.join(cur, s)
+                    if os.path.isdir(full):
+                        nxt.append((full, depth + 1))
+            except OSError:
+                continue
+        q.extend(nxt)
     return None
 
 

@@ -17,8 +17,17 @@
 set -euo pipefail
 
 DEPTH=${1:-5}
-DATA=${DATA_ROOT:-$HOME/data/RLVS}
+DS=${2:-rlvs}
+# same convention as jobs 02 and 07: DATA_ROOT is the parent of the datasets,
+# never a dataset itself. Pointing --root at the parent would let the loader
+# pick whichever dataset it finds first, which is silent and wrong.
+DATA=${DATA_ROOT:-$HOME/data}/$DS
 OUT=$HOME/xai-vd/ckpt/mnv2_ft${DEPTH}.h5
+
+if [ ! -d "$DATA" ]; then
+    echo "dataset directory not found: $DATA" >&2
+    exit 1
+fi
 
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate xai_vd
