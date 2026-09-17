@@ -108,6 +108,26 @@ def main():
               open(args.out + ".json", "w"), indent=2)
     print("saved", args.out, "and", cls_out)
 
+    for f in (args.out, cls_out, args.out + ".json"):
+        if not os.path.exists(f) or os.path.getsize(f) == 0:
+            raise RuntimeError("checkpoint not written: %s" % f)
+    return 0
+
+
+def _exit_without_teardown(code):
+    """Leave without running the interpreter's shutdown.
+
+    model.fit over a Python generator leaves TensorFlow with worker threads
+    that are still joinable when the C++ runtime tears down, which aborts with
+    'terminate called without an active exception' and exit 134. That happens
+    after the weights are on disk, so the run has in fact succeeded - but Slurm
+    sees a non-zero exit and every job chained with afterok is skipped.
+    Flushing and leaving directly avoids the broken shutdown path.
+    """
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(code)
+
 
 if __name__ == "__main__":
-    main()
+    _exit_without_teardown(main() or 0)
