@@ -52,3 +52,14 @@ python scripts/finetune_backbone.py \
     --finetune "$DEPTH" \
     --out "$OUT" \
     --epochs 15 --steps 200 --batch 32
+
+# The weights are what matter, not the interpreter's exit path: confirm they
+# are on disk so a crash during teardown cannot fail the whole chain.
+for f in "$OUT" "${OUT%.h5}_cls.h5" "$OUT.json"; do
+    if [ ! -s "$f" ]; then
+        echo "missing or empty checkpoint: $f" >&2
+        exit 1
+    fi
+done
+echo "checkpoints written:"
+ls -la "$OUT" "${OUT%.h5}_cls.h5" "$OUT.json"
