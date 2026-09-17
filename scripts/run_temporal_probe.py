@@ -88,16 +88,28 @@ def main():
         print("  %-14s acc %.4f  f1 %.4f  delta %+.4f"
               % (name, acc, f1, acc - base))
 
+    # A fixed threshold is wrong here: on a 50-clip test split a single clip is
+    # already 2 points. Compare each drop against the binomial noise of this
+    # split instead, so the verdict means the same thing at every sample size.
+    n = int(te.sum())
+    noise = 1.96 * np.sqrt(base * (1 - base) / max(n, 1))
     worst = min(r["delta"] for r in rows.values())
-    verdict = ("order-invariant: the decision does not depend on frame order"
-               if worst > -0.02 else
-               "order-sensitive: destroying the sequence costs accuracy")
-    print("\nlargest drop: %+.4f -> %s" % (worst, verdict))
+    significant = worst < -noise
+
+    verdict = ("order-sensitive: destroying the sequence costs more accuracy "
+               "than sampling noise"
+               if significant else
+               "order-invariant: no transform costs more than sampling noise")
+    print("\nlargest drop %+.4f, noise floor +/-%.4f (%d clips, 1 clip = %.4f)"
+          % (worst, noise, n, 1.0 / max(n, 1)))
+    print("-> %s" % verdict)
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     json.dump({"features": args.features, "head": args.head,
-               "n_test": int(te.sum()), "transforms": rows,
-               "largest_drop": worst, "verdict": verdict},
+               "n_test": n, "transforms": rows, "largest_drop": worst,
+               "noise_floor_95": float(noise),
+               "clips_per_point": 1.0 / max(n, 1),
+               "significant": bool(significant), "verdict": verdict},
               open(args.out, "w"), indent=2)
     print("wrote", args.out)
 
