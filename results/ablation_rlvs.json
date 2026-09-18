@@ -1,0 +1,85 @@
+{
+  "reference": "full (2 Bi-LSTM + 2 FC)",
+  "seeds": 5,
+  "table": [
+    {
+      "variant": "full (2 Bi-LSTM + 2 FC)",
+      "accuracy_mean": 0.953,
+      "accuracy_std": 0.0144048602908879,
+      "f1_mean": 0.9540879625076455,
+      "delta_vs_full": 0.0
+    },
+    {
+      "variant": "1 Bi-LSTM",
+      "accuracy_mean": 0.9570000000000001,
+      "accuracy_std": 0.009905806378079493,
+      "f1_mean": 0.9578546466601574,
+      "delta_vs_full": 0.004000000000000115,
+      "t": -0.3873740009953278,
+      "p_value": 0.7182081825888293,
+      "cohens_d": -0.17323891978082193,
+      "p_holm": 1.0,
+      "significant": false
+    },
+    {
+      "variant": "3 Bi-LSTM",
+      "accuracy_mean": 0.9644999999999999,
+      "accuracy_std": 0.0059686681931566754,
+      "f1_mean": 0.9648073361932192,
+      "delta_vs_full": 0.011499999999999955,
+      "t": -2.178163129527752,
+      "p_value": 0.09493925129325598,
+      "cohens_d": -0.9741041646590354,
+      "p_holm": 0.5696355077595359,
+      "significant": false
+    },
+    {
+      "variant": "Bi-GRU instead of Bi-LSTM",
+      "accuracy_mean": 0.966,
+      "accuracy_std": 0.004541475531146266,
+      "f1_mean": 0.9663222142487708,
+      "delta_vs_full": 0.013000000000000012,
+      "t": -1.7014919766095917,
+      "p_value": 0.16406784631519192,
+      "cohens_d": -0.7609303445293664,
+      "p_holm": 0.8203392315759596,
+      "significant": false
+    },
+    {
+      "variant": "no recurrence (avg pooling)",
+      "accuracy_mean": 0.9615,
+      "accuracy_std": 0.002236067977499798,
+      "f1_mean": 0.9619991649403413,
+      "delta_vs_full": 0.008500000000000063,
+      "t": -1.1620960759419294,
+      "p_value": 0.3098088058948836,
+      "cohens_d": -0.5197051644066067,
+      "p_holm": 1.0,
+      "significant": false
+    },
+    {
+      "variant": "with batch norm",
+      "accuracy_mean": 0.959,
+      "accuracy_std": 0.0037914377220257677,
+      "f1_mean": 0.9593895074511775,
+      "delta_vs_full": 0.006000000000000005,
+      "t": -0.8251369970070371,
+      "p_value": 0.45565953995796976,
+      "cohens_d": -0.3690124831888601,
+      "p_holm": 1.0,
+      "significant": false
+    },
+    {
+      "variant": "1 FC layer",
+      "accuracy_mean": 0.959,
+      "accuracy_std": 0.008023403267940609,
+      "f1_mean": 0.9593917002970855,
+      "delta_vs_full": 0.006000000000000005,
+      "t": -1.0669301387385346,
+      "p_value": 0.34611863373619395,
+      "cohens_d": -0.47714566345458437,
+      "p_holm": 1.0,
+      "significant": false
+    }
+  ]
+}

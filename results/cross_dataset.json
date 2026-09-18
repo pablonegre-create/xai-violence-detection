@@ -1,0 +1,197 @@
+{
+  "datasets": [
+    "rlvs",
+    "rwf2000",
+    "hockey",
+    "movies",
+    "violentflows"
+  ],
+  "seeds": 3,
+  "matrix": {
+    "rlvs": {
+      "rlvs": {
+        "accuracy_mean": 0.9583333333333334,
+        "accuracy_std": 0.012829003598617229,
+        "f1_mean": 0.9597917934537215,
+        "auc_mean": 0.995275,
+        "in_domain": true
+      },
+      "rwf2000": {
+        "accuracy_mean": 0.5618333333333333,
+        "accuracy_std": 0.017502380790433453,
+        "f1_mean": 0.6638917399058856,
+        "auc_mean": 0.6347838333333333,
+        "in_domain": false
+      },
+      "hockey": {
+        "accuracy_mean": 0.5543333333333333,
+        "accuracy_std": 0.040525712002793125,
+        "f1_mean": 0.6913986025368732,
+        "auc_mean": 0.8728933333333334,
+        "in_domain": false
+      },
+      "movies": {
+        "accuracy_mean": 0.7946127946127945,
+        "accuracy_std": 0.04082274630633716,
+        "f1_mean": 0.7822212572972451,
+        "auc_mean": 0.8854368601843349,
+        "in_domain": false
+      },
+      "violentflows": {
+        "accuracy_mean": 0.6341463414634146,
+        "accuracy_std": 0.03252032520325199,
+        "f1_mean": 0.7246755544526245,
+        "auc_mean": 0.7999096657633243,
+        "in_domain": false
+      }
+    },
+    "rwf2000": {
+      "rlvs": {
+        "accuracy_mean": 0.7571666666666667,
+        "accuracy_std": 0.04516728166862973,
+        "f1_mean": 0.7147564257195534,
+        "auc_mean": 0.8565605,
+        "in_domain": false
+      },
+      "rwf2000": {
+        "accuracy_mean": 0.6408333333333333,
+        "accuracy_std": 0.012583057392117928,
+        "f1_mean": 0.5404963861990463,
+        "auc_mean": 0.7952333333333333,
+        "in_domain": true
+      },
+      "hockey": {
+        "accuracy_mean": 0.6656666666666667,
+        "accuracy_std": 0.0815127801840505,
+        "f1_mean": 0.6017140423059658,
+        "auc_mean": 0.7262853333333332,
+        "in_domain": false
+      },
+      "movies": {
+        "accuracy_mean": 0.616161616161616,
+        "accuracy_std": 0.0505050505050505,
+        "f1_mean": 0.489449764648596,
+        "auc_mean": 0.6381661735197088,
+        "in_domain": false
+      },
+      "violentflows": {
+        "accuracy_mean": 0.6246612466124661,
+        "accuracy_std": 0.04231028454199456,
+        "f1_mean": 0.6301980005445987,
+        "auc_mean": 0.7031308524467358,
+        "in_domain": false
+      }
+    },
+    "hockey": {
+      "rlvs": {
+        "accuracy_mean": 0.7476666666666668,
+        "accuracy_std": 0.05789717897560585,
+        "f1_mean": 0.7564142221166504,
+        "auc_mean": 0.8417694999999998,
+        "in_domain": false
+      },
+      "rwf2000": {
+        "accuracy_mean": 0.5868333333333333,
+        "accuracy_std": 0.0005773502691896263,
+        "f1_mean": 0.5759846725319756,
+        "auc_mean": 0.6197943333333334,
+        "in_domain": false
+      },
+      "hockey": {
+        "accuracy_mean": 0.93,
+        "accuracy_std": 0.03905124837953324,
+        "f1_mean": 0.9259006820474379,
+        "auc_mean": 0.9861666666666666,
+        "in_domain": true
+      },
+      "movies": {
+        "accuracy_mean": 0.6346801346801346,
+        "accuracy_std": 0.04773551137628899,
+        "f1_mean": 0.599072689646419,
+        "auc_mean": 0.6885691936196986,
+        "in_domain": false
+      },
+      "violentflows": {
+        "accuracy_mean": 0.6910569105691057,
+        "accuracy_std": 0.03226525989103162,
+        "f1_mean": 0.6788991693929218,
+        "auc_mean": 0.7663207526384207,
+        "in_domain": false
+      }
+    },
+    "movies": {
+      "rlvs": {
+        "accuracy_mean": 0.5503333333333335,
+        "accuracy_std": 0.017672954855748768,
+        "f1_mean": 0.6737383003440592,
+        "auc_mean": 0.6418716666666667,
+        "in_domain": false
+      },
+      "rwf2000": {
+        "accuracy_mean": 0.5536666666666666,
+        "accuracy_std": 0.006110100926607792,
+        "f1_mean": 0.6122177591039675,
+        "auc_mean": 0.5861795,
+        "in_domain": false
+      },
+      "hockey": {
+        "accuracy_mean": 0.6789999999999999,
+        "accuracy_std": 0.09006664199358165,
+        "f1_mean": 0.7319838738542739,
+        "auc_mean": 0.8433313333333334,
+        "in_domain": false
+      },
+      "movies": {
+        "accuracy_mean": 1.0,
+        "accuracy_std": 0.0,
+        "f1_mean": 1.0,
+        "auc_mean": 1.0,
+        "in_domain": true
+      },
+      "violentflows": {
+        "accuracy_mean": 0.4932249322493225,
+        "accuracy_std": 0.010230127961071448,
+        "f1_mean": 0.6491656198226737,
+        "auc_mean": 0.48615242249983476,
+        "in_domain": false
+      }
+    },
+    "violentflows": {
+      "rlvs": {
+        "accuracy_mean": 0.7638333333333334,
+        "accuracy_std": 0.029767151918403855,
+        "f1_mean": 0.782305957079803,
+        "auc_mean": 0.8442551666666667,
+        "in_domain": false
+      },
+      "rwf2000": {
+        "accuracy_mean": 0.544,
+        "accuracy_std": 0.021148285982556612,
+        "f1_mean": 0.6671029582707818,
+        "auc_mean": 0.5977513333333334,
+        "in_domain": false
+      },
+      "hockey": {
+        "accuracy_mean": 0.537,
+        "accuracy_std": 0.026057628441590725,
+        "f1_mean": 0.6835322820903432,
+        "auc_mean": 0.7815159999999999,
+        "in_domain": false
+      },
+      "movies": {
+        "accuracy_mean": 0.5404040404040403,
+        "accuracy_std": 0.06060606060606061,
+        "f1_mean": 0.6525078007104878,
+        "auc_mean": 0.6171309050096928,
+        "in_domain": false
+      },
+      "violentflows": {
+        "accuracy_mean": 0.8999999999999999,
+        "accuracy_std": 0.06928203230275509,
+        "f1_mean": 0.9106767747073246,
+        "auc_mean": 0.9909333333333333,
+        "in_domain": true
+      }
+    }
+  }
+}

@@ -8,12 +8,15 @@ venv/
 ckpt/
 features/
 logs/
-results/*.json
-!results/.gitkeep
 *.h5
 *.keras
 *.npy
 *.pt
+
+# Result files are small and are what make_tables.py reads to produce every
+# table in the paper, so they are tracked. Scratch files from smoke runs are
+# not.
+results/_*.json
 
 # Datasets never go in the repo. Anchored to the repo root with a leading
 # slash: a bare `data/` also matches src/data/, which silently excluded the

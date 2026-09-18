@@ -1,0 +1,98 @@
+{
+  "n_clips": 200,
+  "block": 5,
+  "methods": {
+    "block_ablation": {
+      "deletion_auc_mean": 0.4850625250005763,
+      "deletion_auc_std": 0.49413951761684816,
+      "insertion_auc_mean": 0.5068179358917613,
+      "insertion_auc_std": 0.4926434400104458,
+      "gap": 0.02175541089118499,
+      "time_s_mean": 0.08769380061712581,
+      "time_s_std": 0.07013844542413362,
+      "model_calls": 37
+    },
+    "occlusion": {
+      "deletion_auc_mean": 0.4838913501624095,
+      "deletion_auc_std": 0.4947141898475408,
+      "insertion_auc_mean": 0.5065807940862327,
+      "insertion_auc_std": 0.49348114956793643,
+      "gap": 0.022689443923823216,
+      "time_s_mean": 0.08167033162200824,
+      "time_s_std": 0.002762537370735341,
+      "model_calls": null
+    },
+    "gradient_input": {
+      "deletion_auc_mean": 0.4892242858637404,
+      "deletion_auc_std": 0.4948176507239491,
+      "insertion_auc_mean": 0.5019485868653203,
+      "insertion_auc_std": 0.49379719757726126,
+      "gap": 0.012724301001579896,
+      "time_s_mean": 0.028359317765571178,
+      "time_s_std": 0.0389622634777114,
+      "model_calls": null
+    },
+    "integrated_gradients": {
+      "deletion_auc_mean": 0.48319231021974185,
+      "deletion_auc_std": 0.4946125627393082,
+      "insertion_auc_mean": 0.5081773145388682,
+      "insertion_auc_std": 0.49257608975927364,
+      "gap": 0.024985004319126314,
+      "time_s_mean": 0.024011080783675424,
+      "time_s_std": 0.0037496330195080944,
+      "model_calls": null
+    },
+    "shapley_sampling": {
+      "deletion_auc_mean": 0.4850236871897067,
+      "deletion_auc_std": 0.4943360969203617,
+      "insertion_auc_mean": 0.508664883213665,
+      "insertion_auc_std": 0.492250144805308,
+      "gap": 0.02364119602395831,
+      "time_s_mean": 13.570367616360308,
+      "time_s_std": 0.25552584359488073,
+      "model_calls": null
+    },
+    "timeshap": {
+      "deletion_auc_mean": 0.4850236871897067,
+      "deletion_auc_std": 0.4943360969203617,
+      "insertion_auc_mean": 0.508664883213665,
+      "insertion_auc_std": 0.492250144805308,
+      "gap": 0.02364119602395831,
+      "time_s_mean": 13.772784372147289,
+      "time_s_std": 1.9605783883999297,
+      "model_calls": null
+    },
+    "random": {
+      "deletion_auc_mean": 0.4951758644349527,
+      "insertion_auc_mean": 0.49576481693918084,
+      "gap": 0.0005889525042281352
+    }
+  },
+  "agreement_with_block_ablation": {
+    "occlusion": {
+      "spearman_mean": 0.2893206739971621,
+      "kendall_mean": 0.21923257864018453,
+      "top5_jaccard_mean": 0.2040873015873016
+    },
+    "gradient_input": {
+      "spearman_mean": 0.18401956505245565,
+      "kendall_mean": 0.13403455205438963,
+      "top5_jaccard_mean": 0.19444444444444442
+    },
+    "integrated_gradients": {
+      "spearman_mean": 0.31222332820515725,
+      "kendall_mean": 0.2329161958556508,
+      "top5_jaccard_mean": 0.20694444444444443
+    },
+    "shapley_sampling": {
+      "spearman_mean": 0.6578740895483389,
+      "kendall_mean": 0.5390070307345105,
+      "top5_jaccard_mean": 0.4821428571428571
+    },
+    "timeshap": {
+      "spearman_mean": 0.6578740895483389,
+      "kendall_mean": 0.5390070307345105,
+      "top5_jaccard_mean": 0.4821428571428571
+    }
+  }
+}

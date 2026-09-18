@@ -1,0 +1,415 @@
+{
+  "config": {
+    "n": 600,
+    "frames": 40,
+    "dim": 1280,
+    "event_len": 5,
+    "snr": 1.0,
+    "block": 5,
+    "explain": 60,
+    "shapley_samples": 40,
+    "seeds": 5,
+    "out": "results/synthetic_xai_benchmark.json"
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "head_accuracy": 0.9944444298744202,
+      "methods": {
+        "block_ablation": {
+          "precision_at_k": 0.9766666666666666,
+          "pointing": 1.0,
+          "spearman_gt": 0.622560294241321,
+          "mass_on_event": 0.8371890560515414,
+          "time_s": 0.09195385937346146,
+          "deletion_auc": 0.6530527147442374,
+          "insertion_auc": 0.9996353328559782
+        },
+        "occlusion": {
+          "precision_at_k": 0.83,
+          "pointing": 0.9,
+          "spearman_gt": 0.7210523270616882,
+          "mass_on_event": 0.8315315022913612,
+          "time_s": 0.08261738411771755,
+          "deletion_auc": 0.6427282295310234,
+          "insertion_auc": 0.999635324610669
+        },
+        "gradient_input": {
+          "precision_at_k": 0.9766666666666666,
+          "pointing": 0.95,
+          "spearman_gt": 0.5701633331867431,
+          "mass_on_event": 0.7493037557204799,
+          "time_s": 0.024518003611592575,
+          "deletion_auc": 0.4120073582953607,
+          "insertion_auc": 0.9996353561017896
+        },
+        "integrated_gradients": {
+          "precision_at_k": 1.0,
+          "pointing": 1.0,
+          "spearman_gt": 0.5730010526857583,
+          "mass_on_event": 0.8128725470366547,
+          "time_s": 0.024414980723910653,
+          "deletion_auc": 0.35239015315120403,
+          "insertion_auc": 0.9996353489989026
+        },
+        "shapley_sampling": {
+          "precision_at_k": 0.72,
+          "pointing": 0.5666666666666667,
+          "spearman_gt": 0.5295638638430656,
+          "mass_on_event": 0.6883250728266993,
+          "time_s": 13.943740637315205,
+          "deletion_auc": 0.6477717979621939,
+          "insertion_auc": 0.9988195041539197
+        },
+        "random": {
+          "precision_at_k": 0.13999999999999999,
+          "pointing": 0.1,
+          "spearman_gt": 0.011569164111369594,
+          "mass_on_event": 0.1303217237996072,
+          "time_s": 0.0,
+          "deletion_auc": 0.9727056157506369,
+          "insertion_auc": 0.988939594566427
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "head_accuracy": 0.9611111283302307,
+      "methods": {
+        "block_ablation": {
+          "precision_at_k": 0.98,
+          "pointing": 1.0,
+          "spearman_gt": 0.6909988414999897,
+          "mass_on_event": 0.8154008458636544,
+          "time_s": 0.09224173072725535,
+          "deletion_auc": 0.6973320898582721,
+          "insertion_auc": 0.9999996294081211
+        },
+        "occlusion": {
+          "precision_at_k": 0.6400000000000001,
+          "pointing": 0.7333333333333333,
+          "spearman_gt": 0.6140998813191658,
+          "mass_on_event": 0.6854307619671344,
+          "time_s": 0.0826964024551368,
+          "deletion_auc": 0.8452274753340594,
+          "insertion_auc": 0.9769364877882373
+        },
+        "gradient_input": {
+          "precision_at_k": 0.9900000000000001,
+          "pointing": 0.9833333333333333,
+          "spearman_gt": 0.5716913359939052,
+          "mass_on_event": 0.796289708732888,
+          "time_s": 0.024592610105173662,
+          "deletion_auc": 0.42652080007671367,
+          "insertion_auc": 0.9999996380011241
+        },
+        "integrated_gradients": {
+          "precision_at_k": 1.0,
+          "pointing": 1.0,
+          "spearman_gt": 0.5730010526857583,
+          "mass_on_event": 0.8097247293323708,
+          "time_s": 0.027425802351596456,
+          "deletion_auc": 0.3462212249824599,
+          "insertion_auc": 0.9999996355672677
+        },
+        "shapley_sampling": {
+          "precision_at_k": 0.72,
+          "pointing": 0.6333333333333333,
+          "spearman_gt": 0.5237123246251217,
+          "mass_on_event": 0.6973058039727443,
+          "time_s": 13.957339856858987,
+          "deletion_auc": 0.5388413792079184,
+          "insertion_auc": 0.9999996248881022
+        },
+        "random": {
+          "precision_at_k": 0.10666666666666667,
+          "pointing": 0.13333333333333333,
+          "spearman_gt": -0.06035611088289985,
+          "mass_on_event": 0.11046589206405567,
+          "time_s": 0.0,
+          "deletion_auc": 0.9782802425371301,
+          "insertion_auc": 0.954018135276787
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "head_accuracy": 1.0,
+      "methods": {
+        "block_ablation": {
+          "precision_at_k": 0.9866666666666667,
+          "pointing": 1.0,
+          "spearman_gt": 0.6623132466575967,
+          "mass_on_event": 0.8580117944881137,
+          "time_s": 0.10262429764067443,
+          "deletion_auc": 0.5659158705051828,
+          "insertion_auc": 0.9996140522276281
+        },
+        "occlusion": {
+          "precision_at_k": 0.4633333333333333,
+          "pointing": 0.6,
+          "spearman_gt": 0.46683554784507025,
+          "mass_on_event": 0.5450364624406698,
+          "time_s": 0.08383935987755346,
+          "deletion_auc": 0.781404667827576,
+          "insertion_auc": 0.9582406013517001
+        },
+        "gradient_input": {
+          "precision_at_k": 0.9233333333333332,
+          "pointing": 0.95,
+          "spearman_gt": 0.5527004439620341,
+          "mass_on_event": 0.7067167296474967,
+          "time_s": 0.024380931729683652,
+          "deletion_auc": 0.37179681567811146,
+          "insertion_auc": 0.9984749885150841
+        },
+        "integrated_gradients": {
+          "precision_at_k": 0.9966666666666666,
+          "pointing": 1.0,
+          "spearman_gt": 0.572891909628104,
+          "mass_on_event": 0.8220627069552454,
+          "time_s": 0.024144557875115425,
+          "deletion_auc": 0.3167460308472693,
+          "insertion_auc": 0.9996140769138854
+        },
+        "shapley_sampling": {
+          "precision_at_k": 0.6799999999999999,
+          "pointing": 0.5833333333333334,
+          "spearman_gt": 0.5194469564754476,
+          "mass_on_event": 0.650245821874512,
+          "time_s": 13.984799349195479,
+          "deletion_auc": 0.6188563705780327,
+          "insertion_auc": 0.9992048885688106
+        },
+        "random": {
+          "precision_at_k": 0.1633333333333333,
+          "pointing": 0.21666666666666667,
+          "spearman_gt": 0.02281089904977589,
+          "mass_on_event": 0.14543605868013348,
+          "time_s": 0.0,
+          "deletion_auc": 0.9743254728546871,
+          "insertion_auc": 0.9860187395452636
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "head_accuracy": 0.9888888597488403,
+      "methods": {
+        "block_ablation": {
+          "precision_at_k": 0.9866666666666667,
+          "pointing": 1.0,
+          "spearman_gt": 0.5725649284236913,
+          "mass_on_event": 0.8185389001924214,
+          "time_s": 0.0913661038017987,
+          "deletion_auc": 0.6835733207071388,
+          "insertion_auc": 0.9950029702360433
+        },
+        "occlusion": {
+          "precision_at_k": 0.9933333333333334,
+          "pointing": 1.0,
+          "spearman_gt": 0.5719172377637282,
+          "mass_on_event": 0.7969739029423984,
+          "time_s": 0.08291205313871615,
+          "deletion_auc": 0.4273627272784761,
+          "insertion_auc": 0.9950888293112318
+        },
+        "gradient_input": {
+          "precision_at_k": 0.9766666666666666,
+          "pointing": 0.9833333333333333,
+          "spearman_gt": 0.5703816193020519,
+          "mass_on_event": 0.7188689993117063,
+          "time_s": 0.025304363338121524,
+          "deletion_auc": 0.42349952841528343,
+          "insertion_auc": 0.9950888488565883
+        },
+        "integrated_gradients": {
+          "precision_at_k": 1.0,
+          "pointing": 1.0,
+          "spearman_gt": 0.5730010526857583,
+          "mass_on_event": 0.7796482816915028,
+          "time_s": 0.023721739603206515,
+          "deletion_auc": 0.37941536134444925,
+          "insertion_auc": 0.9950309296324851
+        },
+        "shapley_sampling": {
+          "precision_at_k": 0.74,
+          "pointing": 0.5666666666666667,
+          "spearman_gt": 0.5339115346505969,
+          "mass_on_event": 0.6999941379312042,
+          "time_s": 13.890672175099219,
+          "deletion_auc": 0.6785154354482489,
+          "insertion_auc": 0.9949162411565582
+        },
+        "random": {
+          "precision_at_k": 0.09666666666666666,
+          "pointing": 0.05,
+          "spearman_gt": -0.015170885013965798,
+          "mass_on_event": 0.11338100145268427,
+          "time_s": 0.0,
+          "deletion_auc": 0.9795026415981509,
+          "insertion_auc": 0.9768265862494633
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "head_accuracy": 0.9944444298744202,
+      "methods": {
+        "block_ablation": {
+          "precision_at_k": 0.9866666666666667,
+          "pointing": 1.0,
+          "spearman_gt": 0.5728403624780055,
+          "mass_on_event": 0.860568365004944,
+          "time_s": 0.0907263868158528,
+          "deletion_auc": 0.6582257287100373,
+          "insertion_auc": 0.9999937211722135
+        },
+        "occlusion": {
+          "precision_at_k": 1.0,
+          "pointing": 1.0,
+          "spearman_gt": 0.5837362207382137,
+          "mass_on_event": 0.8396122178829523,
+          "time_s": 0.08252475456877922,
+          "deletion_auc": 0.44441213953673164,
+          "insertion_auc": 0.9999941260367632
+        },
+        "gradient_input": {
+          "precision_at_k": 0.9966666666666666,
+          "pointing": 1.0,
+          "spearman_gt": 0.572891909628104,
+          "mass_on_event": 0.7556891351735694,
+          "time_s": 0.02305769888140882,
+          "deletion_auc": 0.439097190327384,
+          "insertion_auc": 0.9999941350271304
+        },
+        "integrated_gradients": {
+          "precision_at_k": 0.9966666666666666,
+          "pointing": 1.0,
+          "spearman_gt": 0.572891909628104,
+          "mass_on_event": 0.7883087614050184,
+          "time_s": 0.023474726486407842,
+          "deletion_auc": 0.39352826395124796,
+          "insertion_auc": 0.999993960087498
+        },
+        "shapley_sampling": {
+          "precision_at_k": 0.7133333333333332,
+          "pointing": 0.6,
+          "spearman_gt": 0.5300625328559992,
+          "mass_on_event": 0.6807698975520398,
+          "time_s": 13.803453708797072,
+          "deletion_auc": 0.6795105578130672,
+          "insertion_auc": 0.9999929646154245
+        },
+        "random": {
+          "precision_at_k": 0.13666666666666666,
+          "pointing": 0.13333333333333333,
+          "spearman_gt": 0.038090927121396105,
+          "mass_on_event": 0.1370473911223218,
+          "time_s": 0.0,
+          "deletion_auc": 0.9947334282196728,
+          "insertion_auc": 0.986281124237988
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "block_ablation": {
+      "precision_at_k_mean": 0.9833333333333334,
+      "precision_at_k_std": 0.004714045207910367,
+      "pointing_mean": 1.0,
+      "pointing_std": 0.0,
+      "spearman_gt_mean": 0.6242555346601208,
+      "spearman_gt_std": 0.05296548638992992,
+      "mass_on_event_mean": 0.837941792320135,
+      "mass_on_event_std": 0.021212613467270436,
+      "time_s_mean": 0.09378247567180856,
+      "time_s_std": 0.004976798177280703,
+      "deletion_auc_mean": 0.6516199449049737,
+      "deletion_auc_std": 0.05123840356412902,
+      "insertion_auc_mean": 0.998849141179997,
+      "insertion_auc_std": 0.002158118608529095
+    },
+    "occlusion": {
+      "precision_at_k_mean": 0.7853333333333333,
+      "precision_at_k_std": 0.23245788148967259,
+      "pointing_mean": 0.8466666666666667,
+      "pointing_std": 0.1757523510195209,
+      "spearman_gt_mean": 0.5915282429455733,
+      "spearman_gt_std": 0.09121340714327034,
+      "mass_on_event_mean": 0.7397169695049033,
+      "mass_on_event_std": 0.12503481281786502,
+      "time_s_mean": 0.08291799083158063,
+      "time_s_std": 0.0005345691579323552,
+      "deletion_auc_mean": 0.6282270479015734,
+      "deletion_auc_std": 0.19032685626132775,
+      "insertion_auc_mean": 0.9859790738197202,
+      "insertion_auc_std": 0.018145893036874316
+    },
+    "gradient_input": {
+      "precision_at_k_mean": 0.9726666666666667,
+      "precision_at_k_std": 0.02890597785157177,
+      "pointing_mean": 0.9733333333333333,
+      "pointing_std": 0.022360679774997907,
+      "spearman_gt_mean": 0.5675657284145675,
+      "spearman_gt_std": 0.008382158405140882,
+      "mass_on_event_mean": 0.7453736657172281,
+      "mass_on_event_std": 0.03503981307555091,
+      "time_s_mean": 0.024370721533196048,
+      "time_s_std": 0.0008165087723218668,
+      "deletion_auc_mean": 0.4145843385585707,
+      "deletion_auc_std": 0.025788818153988518,
+      "insertion_auc_mean": 0.9986385933003433,
+      "insertion_auc_std": 0.0020803199438223776
+    },
+    "integrated_gradients": {
+      "precision_at_k_mean": 0.9986666666666666,
+      "precision_at_k_std": 0.001825741858350596,
+      "pointing_mean": 1.0,
+      "pointing_std": 0.0,
+      "spearman_gt_mean": 0.5729573954626966,
+      "spearman_gt_std": 5.978011467234917e-05,
+      "mass_on_event_mean": 0.8025234052841584,
+      "mass_on_event_std": 0.01779097729780752,
+      "time_s_mean": 0.02463636140804738,
+      "time_s_std": 0.0016013892122875698,
+      "deletion_auc_mean": 0.3576602068553261,
+      "deletion_auc_std": 0.029968307582478974,
+      "insertion_auc_mean": 0.9988547902400077,
+      "insertion_auc_std": 0.002145697843346023
+    },
+    "shapley_sampling": {
+      "precision_at_k_mean": 0.7146666666666667,
+      "precision_at_k_std": 0.02180723631172819,
+      "pointing_mean": 0.59,
+      "pointing_std": 0.027888667551135844,
+      "spearman_gt_mean": 0.5273394424900463,
+      "spearman_gt_std": 0.005722826800637435,
+      "mass_on_event_mean": 0.6833281468314398,
+      "mass_on_event_std": 0.019994276004838926,
+      "time_s_mean": 13.91600114545319,
+      "time_s_std": 0.07162409431307881,
+      "deletion_auc_mean": 0.6326991082018922,
+      "deletion_auc_std": 0.058134603100228464,
+      "insertion_auc_mean": 0.998586644676563,
+      "insertion_auc_std": 0.00211438879435648
+    },
+    "random": {
+      "precision_at_k_mean": 0.12866666666666665,
+      "precision_at_k_std": 0.02693613846778255,
+      "pointing_mean": 0.12666666666666665,
+      "pointing_std": 0.06078194176270157,
+      "spearman_gt_mean": -0.0006112011228648114,
+      "spearman_gt_std": 0.03865310285609454,
+      "mass_on_event_mean": 0.12733041342376047,
+      "mass_on_event_std": 0.015084596104464916,
+      "time_s_mean": 0.0,
+      "time_s_std": 0.0,
+      "deletion_auc_mean": 0.9799094801920555,
+      "deletion_auc_std": 0.008741369585730498,
+      "insertion_auc_mean": 0.9784168359751858,
+      "insertion_auc_std": 0.014389144398633957
+    }
+  },
+  "head_accuracy_mean": 0.9877777695655823
+}
