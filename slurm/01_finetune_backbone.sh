@@ -22,7 +22,14 @@ DS=${2:-rlvs}
 # never a dataset itself. Pointing --root at the parent would let the loader
 # pick whichever dataset it finds first, which is silent and wrong.
 DATA=${DATA_ROOT:-$HOME/data}/$DS
-OUT=$HOME/xai-vd/ckpt/mnv2_ft${DEPTH}.h5
+
+# one checkpoint per dataset: fine-tuning on RWF-2000 must not overwrite the
+# RLVS backbone that every other result already depends on
+if [ "$DS" = "rlvs" ]; then
+    OUT=$HOME/xai-vd/ckpt/mnv2_ft${DEPTH}.h5
+else
+    OUT=$HOME/xai-vd/ckpt/mnv2_ft${DEPTH}_${DS}.h5
+fi
 
 if [ ! -d "$DATA" ]; then
     echo "dataset directory not found: $DATA" >&2
@@ -49,6 +56,7 @@ mkdir -p logs ckpt
 
 python scripts/finetune_backbone.py \
     --root "$DATA" \
+    --dataset "$DS" \
     --finetune "$DEPTH" \
     --out "$OUT" \
     --epochs 15 --steps 200 --batch 32

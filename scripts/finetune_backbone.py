@@ -57,18 +57,35 @@ def main():
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--dataset", default=None,
+                    help="'rwf2000' honours its official train/val split; "
+                         "inferred from --root when omitted")
     args = ap.parse_args()
 
     import tensorflow as tf
     from tensorflow import keras
-    from src.data.datasets import index_flat, stratified_split
+    from src.data.datasets import (index_flat, index_rwf2000, stratified_split)
     from src.models.build import (build_backbone, build_classifier_head,
                                   set_finetune_depth)
 
     tf.keras.utils.set_random_seed(args.seed)
 
-    items = index_flat(args.root)
-    tr, va, _ = stratified_split(items, seed=args.seed)
+    name = args.dataset or os.path.basename(os.path.normpath(args.root)).lower()
+
+    if name.startswith("rwf"):
+        # RWF-2000 ships an official, source-disjoint split. Fine-tuning the
+        # backbone on all 2000 clips would put the val clips in front of the
+        # CNN, and every later number on this dataset would be contaminated.
+        splits = index_rwf2000(args.root)
+        pool = splits["train"]
+        tr, va, _ = stratified_split(pool, fractions=(0.88, 0.12, 0.0),
+                                     seed=args.seed)
+        print("official split honoured: %d of %d clips held back entirely"
+              % (len(splits["test"]), len(pool) + len(splits["test"])))
+    else:
+        items = index_flat(args.root)
+        tr, va, _ = stratified_split(items, seed=args.seed)
+
     print("%d train clips, %d val clips" % (len(tr), len(va)))
 
     cnn = build_backbone(args.backbone, input_size=args.input_size)
