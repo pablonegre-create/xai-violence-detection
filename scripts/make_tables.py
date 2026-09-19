@@ -9,6 +9,7 @@ Online Resource 1 is generated here instead.
 
 import argparse
 import json
+import math
 import os
 import sys
 
@@ -72,19 +73,25 @@ def ablation_table(R):
 
 
 def probe_table(R):
-    """Order probe. Reads the per-dataset json if present, else the values
-    recorded from the run in PROBE_FALLBACK."""
+    """Order probe, one file per dataset.
+
+    Runs made before the verdict was tied to sampling noise have no
+    noise_floor_95 field, so recompute it here from the split the file itself
+    records. It is the same expression run_temporal_probe.py uses and it needs
+    nothing but n_test and the untransformed accuracy.
+    """
     out = []
     for d in ORDER:
         j = load(R, "temporal_probe%s.json" % ("" if d == "rlvs" else "_" + d))
         if not j:
             continue
         t = j["transforms"]
-        out.append("%s & %d & %.1f & %+.1f & %+.1f & %+.1f & $\\pm$%.1f \\\\"
-                   % (NAMES[d], j["n_test"], 100 * t["identity"]["accuracy"],
+        n, p = j["n_test"], t["identity"]["accuracy"]
+        noise = j.get("noise_floor_95", 1.96 * math.sqrt(p * (1 - p) / n))
+        out.append("%s & %d & %.1f & %+.1f & %+.1f & %+.1f & $\\pm$%.2f \\\\"
+                   % (NAMES[d], n, 100 * p,
                       100 * t["shuffle"]["delta"], 100 * t["reverse"]["delta"],
-                      100 * t["sort_by_norm"]["delta"],
-                      100 * j.get("noise_floor_95", float("nan"))))
+                      100 * t["sort_by_norm"]["delta"], 100 * noise))
     return "\n".join(out)
 
 

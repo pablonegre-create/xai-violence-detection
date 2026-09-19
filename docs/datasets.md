@@ -6,9 +6,9 @@
 |---|---|---|---|---|
 | RLVS | 2000 | 1000 / 1000 | 70/10/20 stratified holdout | accuracy, P/R/F1, AUC |
 | RWF-2000 | 2000 | 1000 / 1000 | official train/val split | accuracy, P/R/F1, AUC |
-| Hockey Fights | 1000 | 500 / 500 | 5-fold CV | accuracy |
-| Movies Fight | 200 | 100 / 100 | 5-fold CV | accuracy |
-| Violent Flows | 246 | 123 / 123 | 5-fold CV | accuracy |
+| Hockey Fights | 1000 | 500 / 500 | 70/10/20 stratified holdout | accuracy, P/R/F1, AUC |
+| Movies Fight | 198 | 99 / 99 | 70/10/20 stratified holdout | accuracy, P/R/F1, AUC |
+| Violent Flows | 246 | 123 / 123 | 70/10/20 stratified holdout | accuracy, P/R/F1, AUC |
 
 All five are *trimmed clip classification*: a short video is labelled violent
 or not, and the whole clip carries one label. That is the task this model
@@ -16,8 +16,12 @@ solves, so these are the datasets it can be evaluated on directly.
 
 The splits are produced by `src/data/datasets.py` with a fixed seed so the
 numbers are reproducible. Hockey, Movies and Violent Flows are small enough
-that a single holdout split is noisy, which is why the literature settled on
-5-fold CV for them and why we follow it.
+that a single holdout split is noisy, which is why much of the literature uses
+5-fold CV on them. We use a stratified holdout instead and absorb the noise a
+different way: every configuration is trained with five seeds and reported as
+mean +/- sd, with a Wilson interval on the pooled test accuracy. `kfold_split`
+is in `datasets.py` for anyone who wants the CV protocol, but no number in the
+paper comes from it.
 
 ## What is not used, and why
 

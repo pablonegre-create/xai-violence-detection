@@ -213,8 +213,9 @@ for d in ['rlvs','rwf2000','hockey','movies']:
 "
 ```
 
-Expected roughly: rlvs 2000, rwf2000 2000, hockey 1000, movies 200, all
-balanced. If a dataset fails, the class directory name is not in the alias list
+Expected roughly: rlvs 2000, rwf2000 2000, hockey 1000, movies 198, all
+balanced (the Movies mirror ships three redundant copies; see
+`datasets.md`). If a dataset fails, the class directory name is not in the alias list
 — add it to `VIOLENT_DIRS` / `PEACEFUL_DIRS` in `src/data/datasets.py`.
 
 RWF-2000 keeps its own `train/` and `val/` folders; `index_rwf2000` handles it.
@@ -278,6 +279,14 @@ for d in rwf2000 hockey movies violentflows; do
 done
 ```
 
+Once all five heads exist, run the order probe. It is the last job and the
+cheapest — no training, just a permutation of the frame axis and one forward
+pass per test clip — and it is the one the paper's main claim rests on:
+
+```bash
+sbatch slurm/09_temporal_probe.sh                                  # ~2 min
+```
+
 ## 6. Monitor
 
 ```bash
@@ -297,29 +306,20 @@ sacct -j <jobid> -o JobID,JobName,State,Elapsed,ReqMem,MaxRSS
 | 03 | `results/main_<ds>.json` | Table 1 left (acc/F1/AUC/CI) |
 | 04 | `results/ablation_rlvs.json` | Table 2 (Holm-corrected p) |
 | 05 | `results/cross_dataset.json` | Table 1 right (transfer matrix) |
-| 06 | `results/xai_temporal_rlvs.json`, `results/synthetic_xai_benchmark.json` | Table 5, ESM S5/S6 |
-| 07 | `results/robustness_rlvs.json` | Table 6, ESM S4/S5 |
-| 08 | `results/complexity_h100.json` | Table 4, H100 column |
+| 06 | `results/xai_temporal_rlvs.json`, `results/synthetic_xai_benchmark.json` | Table 4, ESM S6 |
+| 07 | `results/robustness_rlvs.json` | Table 6, ESM S5 |
+| 08 | `results/complexity_cn001_cpu.json`, `results/complexity_h100.json` | Table 5, ESM S7 |
+| 09 | `results/temporal_probe*.json` | Table 3, ESM S4 |
 
-The block-size study (ESM Table S3) is not a job; run it once the head exists:
+Every one of those tables is written by `scripts/make_tables.py`, which reads
+this directory and emits the LaTeX bodies:
 
 ```bash
-python - <<'PY'
-import json, numpy as np
-from scripts.train import load_split
-from src.models.build import build_temporal_head
-from src.xai.frame_importance import sweep_block_sizes
-
-X, y, split, _ = load_split('features/rlvs')
-te = np.where(split == 'test')[0][:100]
-head = build_temporal_head(X.shape[1], X.shape[2])
-head.load_weights('ckpt/head_rlvs_seed0.h5')
-out = sweep_block_sizes([X[i] for i in te], head, blocks=(1, 2, 5, 10))
-json.dump(out, open('results/block_size.json', 'w'), indent=2)
-for r in out:
-    print(r)
-PY
+python scripts/make_tables.py --results results --out tables.tex
 ```
+
+Nothing in the paper is transcribed by hand, so re-running a job changes the
+tables with it.
 
 ## 8. Bring the results back
 
