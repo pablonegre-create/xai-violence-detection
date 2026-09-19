@@ -1,0 +1,32 @@
+{
+  "features": "features/rwf2000",
+  "head": "bilstm",
+  "n_test": 400,
+  "transforms": {
+    "identity": {
+      "accuracy": 0.695,
+      "f1": 0.6629834254143646,
+      "delta": 0.0
+    },
+    "shuffle": {
+      "accuracy": 0.7075,
+      "f1": 0.6740947075208914,
+      "delta": 0.012500000000000067
+    },
+    "reverse": {
+      "accuracy": 0.71,
+      "f1": 0.6795580110497238,
+      "delta": 0.015000000000000013
+    },
+    "sort_by_norm": {
+      "accuracy": 0.705,
+      "f1": 0.6740331491712708,
+      "delta": 0.010000000000000009
+    }
+  },
+  "largest_drop": 0.0,
+  "noise_floor_95": 0.04511992796980066,
+  "clips_per_point": 0.0025,
+  "significant": false,
+  "verdict": "order-invariant: no transform costs more than sampling noise"
+}

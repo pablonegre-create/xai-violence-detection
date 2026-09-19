@@ -1,0 +1,32 @@
+{
+  "features": "features/hockey",
+  "head": "bilstm",
+  "n_test": 200,
+  "transforms": {
+    "identity": {
+      "accuracy": 0.925,
+      "f1": 0.9222797927461139,
+      "delta": 0.0
+    },
+    "shuffle": {
+      "accuracy": 0.945,
+      "f1": 0.9447236180904522,
+      "delta": 0.019999999999999907
+    },
+    "reverse": {
+      "accuracy": 0.93,
+      "f1": 0.9285714285714286,
+      "delta": 0.0050000000000000044
+    },
+    "sort_by_norm": {
+      "accuracy": 0.935,
+      "f1": 0.934010152284264,
+      "delta": 0.010000000000000009
+    }
+  },
+  "largest_drop": 0.0,
+  "noise_floor_95": 0.03650417784309077,
+  "clips_per_point": 0.005,
+  "significant": false,
+  "verdict": "order-invariant: no transform costs more than sampling noise"
+}

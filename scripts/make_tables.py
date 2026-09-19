@@ -88,7 +88,9 @@ def probe_table(R):
         t = j["transforms"]
         n, p = j["n_test"], t["identity"]["accuracy"]
         noise = j.get("noise_floor_95", 1.96 * math.sqrt(p * (1 - p) / n))
-        out.append("%s & %d & %.1f & %+.1f & %+.1f & %+.1f & $\\pm$%.2f \\\\"
+        # two decimals on the deltas: on the 400-clip splits one clip is 0.25
+        # points, and rounding that to 0.2/0.3 hides which rows are exact zeros
+        out.append("%s & %d & %.1f & %+.2f & %+.2f & %+.2f & $\\pm$%.2f \\\\"
                    % (NAMES[d], n, 100 * p,
                       100 * t["shuffle"]["delta"], 100 * t["reverse"]["delta"],
                       100 * t["sort_by_norm"]["delta"], 100 * noise))

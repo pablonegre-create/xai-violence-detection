@@ -1,0 +1,32 @@
+{
+  "features": "features/movies",
+  "head": "bilstm",
+  "n_test": 40,
+  "transforms": {
+    "identity": {
+      "accuracy": 0.975,
+      "f1": 0.975609756097561,
+      "delta": 0.0
+    },
+    "shuffle": {
+      "accuracy": 0.975,
+      "f1": 0.975609756097561,
+      "delta": 0.0
+    },
+    "reverse": {
+      "accuracy": 0.975,
+      "f1": 0.975609756097561,
+      "delta": 0.0
+    },
+    "sort_by_norm": {
+      "accuracy": 0.975,
+      "f1": 0.975609756097561,
+      "delta": 0.0
+    }
+  },
+  "largest_drop": 0.0,
+  "noise_floor_95": 0.048383623262422196,
+  "clips_per_point": 0.025,
+  "significant": false,
+  "verdict": "order-invariant: no transform costs more than sampling noise"
+}

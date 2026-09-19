@@ -1,0 +1,32 @@
+{
+  "features": "features/violentflows",
+  "head": "bilstm",
+  "n_test": 50,
+  "transforms": {
+    "identity": {
+      "accuracy": 0.92,
+      "f1": 0.9130434782608695,
+      "delta": 0.0
+    },
+    "shuffle": {
+      "accuracy": 0.9,
+      "f1": 0.8888888888888888,
+      "delta": -0.020000000000000018
+    },
+    "reverse": {
+      "accuracy": 0.92,
+      "f1": 0.9130434782608695,
+      "delta": 0.0
+    },
+    "sort_by_norm": {
+      "accuracy": 0.9,
+      "f1": 0.8888888888888888,
+      "delta": -0.020000000000000018
+    }
+  },
+  "largest_drop": -0.020000000000000018,
+  "noise_floor_95": 0.07519863828554342,
+  "clips_per_point": 0.02,
+  "significant": false,
+  "verdict": "order-invariant: no transform costs more than sampling noise"
+}
