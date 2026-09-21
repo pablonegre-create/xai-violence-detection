@@ -30,14 +30,14 @@ gh auth token                       # copy the value
 
 # on the cluster
 cd $HOME
-git clone https://<TOKEN>@github.com/ralorin/xai-violence-detection.git xai-vd
+git clone https://<TOKEN>@github.com/pablonegre-create/xai-violence-detection.git xai-vd
 ```
 
 Do not leave the token in the remote URL afterwards:
 
 ```bash
 cd ~/xai-vd
-git remote set-url origin https://github.com/ralorin/xai-violence-detection.git
+git remote set-url origin https://github.com/pablonegre-create/xai-violence-detection.git
 ```
 
 **By copy** (no token needed):
