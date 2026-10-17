@@ -38,6 +38,11 @@ def main():
                     help="frame index; otherwise the most confident frame")
     ap.add_argument("--frames", type=int, default=40)
     ap.add_argument("--input-size", type=int, default=128)
+    ap.add_argument("--cols", type=int, default=3,
+                    help="panels per row. 6 puts all of them on one line, "
+                         "which is what fits across a two-column page")
+    ap.add_argument("--width", type=float, default=6.6,
+                    help="figure width in inches")
     args = ap.parse_args()
 
     import cv2
@@ -87,11 +92,14 @@ def main():
     mean_map = mean_map / max(mean_map.max(), 1e-9)
     panels = list(big.items()) + [("mean of the five", mean_map)]
 
-    plt.rcParams.update({"font.size": 7.5, "figure.dpi": 220})
     n = len(panels)
-    cols = 3
+    cols = max(1, min(args.cols, n))
     rowsn = int(np.ceil(n / cols))
-    fig, axes = plt.subplots(rowsn, cols, figsize=(6.6, 2.35 * rowsn))
+    per = args.width / cols
+    plt.rcParams.update({"font.size": 7.5 if cols <= 3 else 6.0,
+                         "figure.dpi": 220})
+    fig, axes = plt.subplots(rowsn, cols,
+                             figsize=(args.width, (per + 0.22) * rowsn))
     axes = np.atleast_1d(axes).ravel()
 
     for ax, (name, cam) in zip(axes, panels):
@@ -100,12 +108,12 @@ def main():
         # stays legible instead of being washed out by a flat overlay
         ax.imshow(cam, cmap="inferno", vmin=0.0, vmax=1.0,
                   alpha=0.25 + 0.5 * cam)
-        ax.set_title(name, fontsize=7.5, pad=4)
+        ax.set_title(name, pad=3)
         ax.set_xticks([]); ax.set_yticks([])
     for ax in axes[n:]:
         ax.axis("off")
 
-    fig.tight_layout(h_pad=1.8, w_pad=0.4)
+    fig.tight_layout(h_pad=1.8 if rowsn > 1 else 0.4, w_pad=0.4)
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     for ext in ("pdf", "png"):
         p = "%s.%s" % (args.out, ext)

@@ -279,8 +279,11 @@ for d in rwf2000 hockey movies violentflows; do
 done
 ```
 
-Once all five heads exist, run the order probe. It is the last job and the
-cheapest — no training, just a permutation of the frame axis and one forward
+Jobs 10 to 16 are the second round of review. Only 11, 13 and 14 cost real
+time; the rest reuse the cached descriptors and finish in minutes. Job 16 asks
+for no GPU, so it does not queue behind the training jobs.
+
+Once all five heads exist, run the order probe. It is the cheapest — no training, just a permutation of the frame axis and one forward
 pass per test clip — and it is the one the paper's main claim rests on:
 
 ```bash
@@ -309,7 +312,14 @@ sacct -j <jobid> -o JobID,JobName,State,Elapsed,ReqMem,MaxRSS
 | 06 | `results/xai_temporal_rlvs.json`, `results/synthetic_xai_benchmark.json` | Table 4, ESM S6 |
 | 07 | `results/robustness_rlvs.json` | Table 6, ESM S5 |
 | 08 | `results/complexity_cn001_cpu.json`, `results/complexity_h100.json` | Table 5, ESM S7 |
-| 09 | `results/temporal_probe*.json` | Table 3, ESM S4 |
+| 09 | `results/temporal_probe*.json` | superseded by 10 |
+| 10 | `results/temporal_probe*.json` | the probe with 20 permutations, flip rates and per-clip probability shifts |
+| 11 | `results/motion_control_<ds>.json` | the matched motion control |
+| 12 | `results/kfold_<ds>.json`, `results/preds_<ds>.json` | 10-fold, and the probabilities the ROC curve needs |
+| 13 | `results/semisynthetic_xai.json` | attribution on spliced real footage |
+| 14 | `results/*_industrial.json` | the sixth benchmark, end to end |
+| 15 | `results/ablation_rlvs.json` | the ablation at 20 seeds, with TOST |
+| 16 | `figures/gradcam_mobilenetv2.*` | the Grad-CAM panel, CPU only |
 
 Every one of those tables is written by `scripts/make_tables.py`, which reads
 this directory and emits the LaTeX bodies:

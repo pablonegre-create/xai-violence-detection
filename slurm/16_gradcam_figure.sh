@@ -33,7 +33,14 @@ export CUDA_VISIBLE_DEVICES=""
 cd $HOME/xai-vd
 mkdir -p logs figures
 
+# one row for the paper, where the figure has to cross two columns, and the
+# three-by-two grid for Online Resource 1, where it can be read at size
 python scripts/make_gradcam_figure.py \
-    --root "$DATA" \
-    --backbone-weights "$CLS" \
+    --root "$DATA" --backbone-weights "$CLS" \
+    --cols 6 --width 7.1 \
+    --out figures/gradcam_mobilenetv2_row
+
+python scripts/make_gradcam_figure.py \
+    --root "$DATA" --backbone-weights "$CLS" \
+    --cols 3 --width 6.6 \
     --out figures/gradcam_mobilenetv2

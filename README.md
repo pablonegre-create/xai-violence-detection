@@ -75,6 +75,7 @@ None of the datasets are redistributed here. Download them and point
 | Hockey Fights | 1000 | kaggle: `yassershrief/hockey-fight-vidoes` |
 | Movies Fight | 198 | kaggle: `naveenk903/movies-fight-detection-dataset` |
 | Violent Flows | 246 | https://www.openu.ac.il/home/hassner/data/violentflows/ |
+| Industrial Surveillance | 300 | github: `FathUMinUllah3797/VD_ConvLSTM_GRU` |
 
 The loaders expect two class subdirectories per dataset (`Violence/` and
 `NonViolence/`, or the equivalent names the Kaggle mirrors use — see
@@ -117,7 +118,9 @@ python scripts/train.py --features features/rlvs --seeds 5 \
 
 # 4. the rest
 python scripts/run_temporal_probe.py --features features/rlvs \
-    --head-weights ckpt/head_rlvs_seed0.h5 --out results/temporal_probe.json
+    --head-weights ckpt/head_rlvs_seed0.h5 --n-perm 20 \
+    --out results/temporal_probe.json
+python scripts/run_kfold.py         --features features/rlvs --k 10
 python scripts/run_ablation.py      --features features/rlvs
 python scripts/run_cross_dataset.py --features features
 python scripts/run_xai_eval.py      --features features/rlvs --head-weights ckpt/head_rlvs_seed0.h5
@@ -168,6 +171,34 @@ are sound and the model is not.
 
 `scripts/make_figures.py` also runs anywhere: it only needs `results/` and
 matplotlib.
+
+## Is the RWF-2000 gap really the missing motion?
+
+Showing that the detector ignores frame order does not by itself prove that the
+points it loses on RWF-2000 are the motion it cannot see. The control keeps the
+whole pipeline fixed and changes only whether motion is in the input:
+
+```bash
+# cache a second set of descriptors from frame-to-frame differences
+python scripts/extract_features.py --dataset rwf2000 --root $DATA_ROOT/rwf2000 \
+    --input-mode diff --backbone-weights ckpt/mnv2_ft5_rwf2000.h5 \
+    --out features/rwf2000_diff
+
+# same head, same split, same seeds; appearance vs motion vs both
+python scripts/run_motion_control.py --dataset rwf2000 \
+    --features-rgb features/rwf2000 --features-diff features/rwf2000_diff \
+    --out results/motion_control_rwf2000.json
+```
+
+It probes each arm too. On the appearance arm the probe should stay flat; on an
+arm that can see motion it should not, which is the same probe firing on real
+video rather than on a synthetic positive control.
+
+`scripts/run_semisynthetic_xai.py` is the other half of that argument. It
+scores the attribution methods against an event placed in real footage: a real
+non-violent clip with a window spliced in from a donor, violent for positives
+and non-violent for negatives, so the cut carries no label information and only
+the window content does.
 
 ## Notes
 
