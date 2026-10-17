@@ -37,7 +37,8 @@ except ImportError:
 # would silently label a whole fold violent.
 VIOLENT_DIRS = {"violence", "fight", "fights", "violent", "vio"}
 PEACEFUL_DIRS = {"nonviolence", "nofight", "nonfight", "non-violence",
-                 "nonviolent", "normal", "noviolence", "noviolent"}
+                 "nonviolent", "non-violent", "normal", "noviolence",
+                 "noviolent", "non_violent", "non_violence"}
 
 VIDEO_EXT = ("*.mp4", "*.avi", "*.mpg", "*.mpeg", "*.mov", "*.mkv")
 
@@ -323,6 +324,25 @@ def load_clip(path, n_frames=40, size=128, sampling="uniform"):
     out = np.stack([cv2.resize(f, (size, size)) for f in sel])
     out = cv2.cvtColor(out.reshape(-1, size, 3), cv2.COLOR_BGR2RGB)
     return (out.reshape(n_frames, size, size, 3).astype("float32") / 255.0)
+
+
+def to_temporal_difference(clip, scale=4.0):
+    """Turn a clip into its frame-to-frame differences.
+
+    The appearance model reads one frame at a time, so it cannot see motion
+    however long you train it. Feeding it |frame_t - frame_{t-1}| instead gives
+    the same architecture the same number of inputs with motion in them and
+    appearance largely gone, which is what makes it a matched control rather
+    than a different model.
+
+    The difference of two frames in [0, 1] is small almost everywhere, so it is
+    scaled before clipping; without that the backbone sees nearly black input
+    and the batch statistics collapse. The first frame has no predecessor and
+    is repeated, keeping the array length at n_frames.
+    """
+    d = np.abs(np.diff(clip, axis=0))
+    d = np.clip(d * scale, 0.0, 1.0)
+    return np.concatenate([d[:1], d], axis=0).astype("float32")
 
 
 def duplicate_groups(items, nbytes=1 << 20):

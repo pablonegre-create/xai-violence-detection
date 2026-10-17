@@ -82,6 +82,62 @@ def paired_ttest_seeds(scores_a, scores_b):
             "mean_diff": float(diff.mean())}
 
 
+def paired_diff_ci(scores_a, scores_b, confidence=0.95):
+    """Confidence interval on the mean paired difference across seeds.
+
+    A non-significant p-value says the data are consistent with no difference,
+    which is not the same as saying the difference is small. The interval is
+    what tells you how large a difference the data still allow.
+    """
+    a, b = np.asarray(scores_a, float), np.asarray(scores_b, float)
+    diff = a - b
+    n = len(diff)
+    if n < 2:
+        return {"mean_diff": float(diff.mean()) if n else float("nan"),
+                "lo": float("nan"), "hi": float("nan"), "n": n}
+    se = diff.std(ddof=1) / np.sqrt(n)
+    t = stats.t.ppf(1 - (1 - confidence) / 2, df=n - 1)
+    return {"mean_diff": float(diff.mean()),
+            "lo": float(diff.mean() - t * se),
+            "hi": float(diff.mean() + t * se),
+            "se": float(se), "n": int(n), "confidence": confidence}
+
+
+def tost_equivalence(scores_a, scores_b, margin, alpha=0.05):
+    """Two one-sided tests for equivalence within +/- margin.
+
+    Rejecting the two one-sided nulls lets you claim the difference lies inside
+    the margin, which an ordinary t-test never licenses however large its
+    p-value. The margin has to be chosen before looking, and stated.
+    """
+    a, b = np.asarray(scores_a, float), np.asarray(scores_b, float)
+    diff = a - b
+    n = len(diff)
+    if n < 2:
+        return {"equivalent": False, "p_value": float("nan"), "n": n,
+                "margin": margin, "reason": "need at least two pairs"}
+
+    se = diff.std(ddof=1) / np.sqrt(n)
+    if se == 0:
+        # identical on every seed: equivalent for any positive margin
+        inside = abs(diff.mean()) < margin
+        return {"equivalent": bool(inside), "p_value": 0.0 if inside else 1.0,
+                "p_lower": 0.0, "p_upper": 0.0, "mean_diff": float(diff.mean()),
+                "margin": float(margin), "n": int(n), "se": 0.0,
+                "note": "zero variance across seeds"}
+
+    df = n - 1
+    t_lower = (diff.mean() + margin) / se     # H0: diff <= -margin
+    t_upper = (diff.mean() - margin) / se     # H0: diff >= +margin
+    p_lower = stats.t.sf(t_lower, df)
+    p_upper = stats.t.cdf(t_upper, df)
+    p = max(p_lower, p_upper)
+    return {"equivalent": bool(p < alpha), "p_value": float(p),
+            "p_lower": float(p_lower), "p_upper": float(p_upper),
+            "mean_diff": float(diff.mean()), "margin": float(margin),
+            "se": float(se), "n": int(n), "alpha": alpha}
+
+
 def wilcoxon_across_datasets(scores_a, scores_b):
     """Non-parametric comparison over several datasets (Demsar, 2006)."""
     try:

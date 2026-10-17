@@ -30,10 +30,13 @@ def main():
     ap.add_argument("--frames", type=int, default=40)
     ap.add_argument("--input-size", type=int, default=128)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--input-mode", default="rgb", choices=["rgb", "diff"],
+                    help="rgb: frames as they are. diff: frame-to-frame "
+                         "differences, the matched motion control")
     args = ap.parse_args()
 
     from src.data.datasets import (index_flat, index_rwf2000, load_clip,
-                                   stratified_split)
+                                   stratified_split, to_temporal_difference)
     from src.models.build import build_backbone
 
     os.makedirs(args.out, exist_ok=True)
@@ -73,6 +76,8 @@ def main():
         except Exception as e:
             print("skip %s (%s)" % (path, e))
             continue
+        if args.input_mode == "diff":
+            clip = to_temporal_difference(clip)
         f = cnn.predict(clip, batch_size=args.frames, verbose=0)
         feats.append(f.astype("float32"))
         labels.append(label)
@@ -87,6 +92,7 @@ def main():
         json.dump({"names": names, "splits": splits_out,
                    "backbone": args.backbone, "frames": args.frames,
                    "input_size": args.input_size,
+                   "input_mode": args.input_mode,
                    "weights": args.backbone_weights}, fh, indent=2)
     print("wrote %d feature arrays to %s" % (len(feats), args.out))
 

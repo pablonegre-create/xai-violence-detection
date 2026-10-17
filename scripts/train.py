@@ -113,7 +113,10 @@ def main():
                      "precision": float(p), "recall": float(r),
                      "f1": float(f1), "auc": float(auc),
                      "confusion": confusion_matrix(y[te], pred).tolist()})
-        all_preds["seed%d" % seed] = pred.tolist()
+        # the probability, not just the label: an ROC curve cannot be drawn
+        # from hard predictions, and the reviewers asked for one per dataset
+        all_preds["seed%d" % seed] = {"pred": pred.tolist(),
+                                      "prob": prob[:, 1].astype(float).tolist()}
         print("seed %d  acc=%.4f  f1=%.4f  auc=%.4f" % (seed, acc, f1, auc),
               flush=True)
 
