@@ -96,13 +96,16 @@ def main():
 
     for ax, (name, cam) in zip(axes, panels):
         ax.imshow(img)
-        ax.imshow(cam, cmap="inferno", alpha=0.45, vmin=0.0, vmax=1.0)
-        ax.set_title(name, fontsize=7.5)
+        # alpha follows the map, so where the network is not looking the frame
+        # stays legible instead of being washed out by a flat overlay
+        ax.imshow(cam, cmap="inferno", vmin=0.0, vmax=1.0,
+                  alpha=0.25 + 0.5 * cam)
+        ax.set_title(name, fontsize=7.5, pad=4)
         ax.set_xticks([]); ax.set_yticks([])
     for ax in axes[n:]:
         ax.axis("off")
 
-    fig.tight_layout(h_pad=0.6, w_pad=0.3)
+    fig.tight_layout(h_pad=1.8, w_pad=0.4)
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     for ext in ("pdf", "png"):
         p = "%s.%s" % (args.out, ext)
