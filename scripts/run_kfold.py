@@ -54,6 +54,18 @@ def main():
     name = args.dataset or os.path.basename(os.path.normpath(args.features))
     print("%s: %d clips, features %s" % (name, n, X.shape))
 
+    # RWF-2000 ships a split whose point is that no source video appears on
+    # both sides. Cutting folds at random pools it back together, and clips
+    # taken from the same recording then land in training and test at once.
+    # That is the re-split the paper warns about in its related work, so the
+    # number this produces is not comparable with the official one and the
+    # result file has to say so.
+    official = "val" not in set(split.tolist())
+    if official:
+        print("WARNING: this cache carries a source-disjoint official split. "
+              "k-fold discards it, so the folds can put clips from one source "
+              "video on both sides and the accuracy will be optimistic.")
+
     # group ids keep identical clips in one fold. The feature cache lists the
     # clip file names, so the groups are recovered from those rather than by
     # hashing the videos again.
@@ -131,6 +143,7 @@ def main():
     accs = [r["accuracy"] for r in runs]
     summary = {
         "dataset": name, "features": args.features, "k": args.k,
+        "discards_official_split": bool(official),
         "accuracy": summarise_runs(accs, n_test=n),
         "f1": summarise_runs([r["f1"] for r in runs]),
         "precision": summarise_runs([r["precision"] for r in runs]),
