@@ -40,6 +40,15 @@ CASES.append(("envoltorio + hermano suelto", mk(
     ["Data/Violence/a.avi", "Data/NonViolence/b.avi", "extras/readme/none.txt"]
 ), 2, 1))
 
+# 4b. the Industrial Surveillance Dataset writes the negative class with a
+# hyphen, which the alias list did not cover until a job failed on it
+CASES.append(("Non-Violent con guion (industrial)", mk(
+    ["Industrial Surveillance Dataset/Violent/Indus-violent-001.mkv",
+     "Industrial Surveillance Dataset/Violent/Indus-violent-002.mkv",
+     "Industrial Surveillance Dataset/Non-Violent/Indus-Non-violent-001.mkv",
+     "Industrial Surveillance Dataset/Non-Violent/Indus-Non-violent-002.mkv"]
+), 4, 2))
+
 # 5. Hockey: one directory, class in the file name
 CASES.append(("nombre de fichero (hockey)", mk(
     ["HockeyFights/fi1_xvid.avi", "HockeyFights/fi2_xvid.avi",

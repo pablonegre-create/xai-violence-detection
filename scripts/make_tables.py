@@ -16,10 +16,11 @@ import sys
 NAMES = {
     "rlvs": "RLVS", "rwf2000": "RWF-2000", "hockey": "Hockey Fights",
     "movies": "Movies Fight", "violentflows": "Violent Flows",
+    "industrial": "Industrial Surv.",
 }
-ORDER = ["rlvs", "rwf2000", "hockey", "movies", "violentflows"]
+ORDER = ["rlvs", "rwf2000", "hockey", "movies", "violentflows", "industrial"]
 SHORT = {"rlvs": "RLVS", "rwf2000": "RWF", "hockey": "Hock.",
-         "movies": "Mov.", "violentflows": "VF"}
+         "movies": "Mov.", "violentflows": "VF", "industrial": "Ind."}
 
 
 def load(d, name):
@@ -34,10 +35,11 @@ def main_table(R):
         if not j:
             continue
         a, f, u = j["accuracy"], j["f1"], j["auc"]
-        lo, hi = a.get("wilson95", (float("nan"),) * 2)
-        rows.append("%s & %.1f $\\pm$ %.1f & %.3f & %.3f & [%.1f, %.1f] \\\\"
+        pr, rc = j.get("precision", {}), j.get("recall", {})
+        rows.append("%s & %.1f $\\pm$ %.1f & %.3f & %.3f & %.3f & %.3f \\\\"
                     % (NAMES[d], 100 * a["mean"], 100 * a["std"],
-                       f["mean"], u["mean"], 100 * lo, 100 * hi))
+                       pr.get("mean", float("nan")), rc.get("mean", float("nan")),
+                       f["mean"], u["mean"]))
     return "\n".join(rows)
 
 
@@ -66,9 +68,17 @@ def ablation_table(R):
         p = "%.2f" % e["p_holm"] if "p_holm" in e else "---"
         dl = "---" if e["variant"] == j["reference"] else \
              "%+.2f" % (100 * e["delta_vs_full"])
-        out.append("%s & %.2f $\\pm$ %.2f & %s & %s \\\\"
+        ci = e.get("ci_vs_full")
+        ci_s = ("[%+.2f, %+.2f]" % (100 * ci["lo"], 100 * ci["hi"])
+                if ci else "---")
+        tost = e.get("tost") or {}
+        eq = []
+        for m in sorted(tost):
+            eq.append("%s" % ("yes" if tost[m]["equivalent"] else "no"))
+        out.append("%s & %.2f $\\pm$ %.2f & %s & %s & %s & %s \\\\"
                    % (e["variant"], 100 * e["accuracy_mean"],
-                      100 * e["accuracy_std"], dl, p))
+                      100 * e["accuracy_std"], dl, p, ci_s,
+                      " / ".join(eq) if eq else "---"))
     return "\n".join(out)
 
 
@@ -90,10 +100,91 @@ def probe_table(R):
         noise = j.get("noise_floor_95", 1.96 * math.sqrt(p * (1 - p) / n))
         # two decimals on the deltas: on the 400-clip splits one clip is 0.25
         # points, and rounding that to 0.2/0.3 hides which rows are exact zeros
+        sh = t["shuffle"]
         out.append("%s & %d & %.1f & %+.2f & %+.2f & %+.2f & $\\pm$%.2f \\\\"
                    % (NAMES[d], n, 100 * p,
-                      100 * t["shuffle"]["delta"], 100 * t["reverse"]["delta"],
+                      100 * sh["delta"], 100 * t["reverse"]["delta"],
                       100 * t["sort_by_norm"]["delta"], 100 * noise))
+    return "\n".join(out)
+
+
+def probe_function_table(R):
+    """What the shuffle does per clip, which accuracy alone cannot show."""
+    out = []
+    for d in ORDER:
+        j = load(R, "temporal_probe%s.json" % ("" if d == "rlvs" else "_" + d))
+        if not j:
+            continue
+        sh = j["transforms"]["shuffle"]
+        if "flip_rate" not in sh:
+            continue
+        out.append("%s & %d & %+.2f $\\pm$ %.2f & %.1f & %.4f & %.4f & %.3f \\\\"
+                   % (NAMES[d], j.get("n_perm", 1), 100 * sh["delta"],
+                      100 * sh.get("accuracy_sd", 0.0),
+                      100 * sh["flip_rate"], sh["abs_dp_mean"],
+                      sh["abs_dp_p95"], sh.get("prob_corr", float("nan"))))
+    return "\n".join(out)
+
+
+def kfold_table(R):
+    """10-fold next to the holdout the paper reported first."""
+    out = []
+    for d in ORDER:
+        k = load(R, "kfold_%s.json" % d)
+        if not k:
+            continue
+        m = load(R, "main_%s.json" % d)
+        a = k["accuracy"]
+        hold = ("%.1f $\\pm$ %.1f" % (100 * m["accuracy"]["mean"],
+                                      100 * m["accuracy"]["std"])) if m else "---"
+        out.append("%s & %s & %.1f $\\pm$ %.1f & %.1f & %.1f & %.3f \\\\"
+                   % (NAMES[d], hold, 100 * a["mean"], 100 * a["std"],
+                      100 * a["min"], 100 * a["max"], k["f1"]["mean"]))
+    return "\n".join(out)
+
+
+def motion_table(R, datasets=("rwf2000", "rlvs", "industrial")):
+    """Appearance against motion against both, same head and same split."""
+    out = []
+    for d in datasets:
+        j = load(R, "motion_control_%s.json" % d)
+        if not j:
+            continue
+        out.append("\\multicolumn{6}{@{}l}{\\textit{%s}} \\\\" % NAMES.get(d, d))
+        for name, arm in j["arms"].items():
+            a = arm["accuracy"]
+            vs = arm.get("vs_appearance")
+            delta = "---" if not vs else "%+.1f" % (100 * vs["delta"])
+            ci = "---"
+            if vs and "ci" in vs:
+                ci = "[%+.1f, %+.1f]" % (100 * vs["ci"]["lo"],
+                                         100 * vs["ci"]["hi"])
+            probe = arm.get("order_probe", {})
+            sens = probe.get("order_sensitive")
+            out.append("\\quad %s & %.1f $\\pm$ %.1f & %s & %s & %+.2f & %s \\\\"
+                       % (name, 100 * a["mean"], 100 * a["std"], delta, ci,
+                          100 * probe.get("delta", float("nan")),
+                          "---" if sens is None
+                          else ("yes" if sens else "no")))
+    return "\n".join(out)
+
+
+def semisynthetic_table(R):
+    label = {"block_ablation": "Block ablation (ours)",
+             "occlusion": "Temporal occlusion",
+             "gradient_input": "Gradient $\\times$ input",
+             "integrated_gradients": "Integrated gradients",
+             "shapley_sampling": "Sampled Shapley",
+             "random": "Random ordering"}
+    j = load(R, "semisynthetic_xai.json")
+    if not j:
+        return ""
+    out = []
+    for k, v in j["aggregate"].items():
+        out.append("%s & %.3f $\\pm$ %.3f & %.3f & %.3f & %.2f \\\\"
+                   % (label.get(k, k), v["precision_at_k_mean"],
+                      v["precision_at_k_std"], v["pointing_mean"],
+                      v["mass_on_event_mean"], v["time_s_mean"]))
     return "\n".join(out)
 
 
@@ -195,6 +286,12 @@ def main():
         ("Table 2 -- cross-dataset transfer", cross_table(R)),
         ("Table 3 -- component ablation", ablation_table(R)),
         ("Table 4 -- order probe", probe_table(R)),
+        ("Table 4b -- order probe at the function level",
+         probe_function_table(R)),
+        ("Table 4c -- 10-fold against the holdout", kfold_table(R)),
+        ("Table 4d -- matched motion control", motion_table(R)),
+        ("Table 4e -- attribution on spliced real footage",
+         semisynthetic_table(R)),
         ("Table 5 -- efficiency (CPU)", efficiency_table(R)),
         ("Table 5b -- efficiency (H100, ESM)",
          efficiency_table(R, "complexity_h100.json")),
