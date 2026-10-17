@@ -13,6 +13,8 @@ import json
 import math
 import os
 
+import numpy as np
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -37,16 +39,24 @@ APPEARANCE = [("gaussian_noise", ":d", "Gaussian noise"),
               ("rain", ":s", "rain")]
 
 
-def load(d, name):
+def load(d, name, required=True):
+    """Read a result file. Panels that iterate over datasets pass
+    required=False, so the figure draws whatever has been run rather than
+    refusing to draw anything."""
     p = os.path.join(d, name)
     if not os.path.exists(p):
-        raise SystemExit("missing result file: %s" % p)
+        if required:
+            raise SystemExit("missing result file: %s" % p)
+        return None
     return json.load(open(p))
 
 
 def probe_panel(ax, R):
-    xs = list(range(len(ORDER)))
-    for x, d in zip(xs, ORDER):
+    present = [d for d in ORDER
+               if load(R, "temporal_probe%s.json"
+                       % ("" if d == "rlvs" else "_" + d), required=False)]
+    xs = list(range(len(present)))
+    for x, d in zip(xs, present):
         j = load(R, "temporal_probe%s.json" % ("" if d == "rlvs" else "_" + d))
         t = j["transforms"]
         n, p = j["n_test"], t["identity"]["accuracy"]
@@ -62,9 +72,10 @@ def probe_panel(ax, R):
 
     ax.axhline(0, color="0.45", linewidth=0.8, zorder=1)
     ax.set_xticks(xs)
-    ax.set_xticklabels([SHORT[d] for d in ORDER], rotation=18, ha="right")
+    ax.set_xticklabels([SHORT[d] for d in present], rotation=18,
+                       ha="right")
     ax.set_ylabel("change in accuracy (points)")
-    ax.set_xlim(-0.65, len(ORDER) - 0.35)
+    ax.set_xlim(-0.65, len(present) - 0.35)
     ax.set_title("(a) frame order destroyed at test time", loc="left")
 
     handles = [plt.Line2D([], [], marker=m, linestyle="none", color="0.12",
