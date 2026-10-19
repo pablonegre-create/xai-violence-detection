@@ -1,0 +1,136 @@
+{
+  "dataset": "movies",
+  "features": "features/movies",
+  "k": 10,
+  "accuracy": {
+    "mean": 0.9949999999999999,
+    "std": 0.01581138830084191,
+    "n_runs": 10,
+    "min": 0.95,
+    "max": 1.0,
+    "wilson95": [
+      0.971951267794997,
+      0.9991079048109474
+    ]
+  },
+  "f1": {
+    "mean": 0.9952380952380953,
+    "std": 0.015058465048420872,
+    "n_runs": 10,
+    "min": 0.9523809523809523,
+    "max": 1.0
+  },
+  "precision": {
+    "mean": 0.990909090909091,
+    "std": 0.02874797872880346,
+    "n_runs": 10,
+    "min": 0.9090909090909091,
+    "max": 1.0
+  },
+  "recall": {
+    "mean": 1.0,
+    "std": 0.0,
+    "n_runs": 10,
+    "min": 1.0,
+    "max": 1.0
+  },
+  "auc": {
+    "mean": 1.0,
+    "std": 0.0,
+    "n_runs": 10,
+    "min": 1.0,
+    "max": 1.0
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 1,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 2,
+      "n_test": 20,
+      "accuracy": 0.95,
+      "precision": 0.9090909090909091,
+      "recall": 1.0,
+      "f1": 0.9523809523809523,
+      "auc": 1.0
+    },
+    {
+      "fold": 3,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 4,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 5,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 6,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 7,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 8,
+      "n_test": 20,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    },
+    {
+      "fold": 9,
+      "n_test": 18,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0
+    }
+  ]
+}
