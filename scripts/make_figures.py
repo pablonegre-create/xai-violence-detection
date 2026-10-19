@@ -105,9 +105,10 @@ def robustness_panel(ax, R):
                 linewidth=1.1, markerfacecolor="white", label=lab)
 
     ax.axhline(50, color="0.75", linewidth=0.7)
-    ax.annotate("chance", (sev[-1], 50), xytext=(-2, 4),
-                textcoords="offset points", ha="right", fontsize=7,
-                color="0.55")
+    # below the line: above it the rain and low-light curves run into it
+    ax.annotate("chance", (sev[1] + 0.5, 50), xytext=(0, -3),
+                textcoords="offset points", ha="center", va="top",
+                fontsize=7, color="0.55")
     ax.set_xticks(sev)
     ax.set_xlim(sev[0] - 0.35, sev[-1] + 0.35)
     ax.set_xlabel("corruption severity")

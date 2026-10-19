@@ -5,20 +5,20 @@ explanation in lightweight video violence detection* (Negre, Alonso, Chamoso,
 Prieto), under review at Springer *Signal, Image and Video Processing*.
 
 The detector is a MobileNetV2 backbone that produces one descriptor per frame,
-followed by a Bi-LSTM head that classifies the sequence. It reaches 96.0% on
+followed by a Bi-LSTM head that classifies the sequence. It reaches 96.4% on
 RLVS. We set out to explain it along the time axis and ended up reporting
-something else: **once trained, it is invariant to the order of its input
-frames.** Shuffling the 40 frames of an RLVS test clip changes accuracy by 0.00
-points, and on none of five benchmarks does any reordering cost more than the
-binomial noise of that benchmark's test split.
+something else: **once trained, it barely uses the order of its input
+frames.** Over twenty random permutations of the 40 frames of each test clip,
+accuracy moves by less than the binomial noise of the test split on all six
+benchmarks, and at least 96.7% of clips keep their predicted label.
 
-That makes temporal attribution of this model vacuous, and the repository is
-laid out so you can check it rather than take our word for it:
+That leaves temporal attribution of this model with almost nothing to find,
+and the repository is laid out so you can check it rather than take our word
+for it:
 
 - `scripts/run_temporal_probe.py` is the experiment the claim rests on. It
   needs no training — it loads cached descriptors and a trained head, permutes
-  the frame axis and re-runs the head — and the whole five-dataset sweep takes
-  about two minutes.
+  the frame axis and re-runs the head — so the whole sweep takes minutes.
 - `scripts/run_synthetic_xai_benchmark.py` is the control. On sequences with an
   event planted at a known offset, the same attribution methods recover it
   almost perfectly, which is what separates "the model has no temporal
