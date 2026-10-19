@@ -306,23 +306,24 @@ sacct -j <jobid> -o JobID,JobName,State,Elapsed,ReqMem,MaxRSS
 
 | Job | Output file | Fills |
 |---|---|---|
-| 03 | `results/main_<ds>.json` | Table 1 left (acc/F1/AUC/CI) |
-| 04 | `results/ablation_rlvs.json` | Table 2 (Holm-corrected p) |
-| 05 | `results/cross_dataset.json` | Table 1 right (transfer matrix) |
-| 06 | `results/xai_temporal_rlvs.json`, `results/synthetic_xai_benchmark.json` | Table 4, ESM S6 |
-| 07 | `results/robustness_rlvs.json` | Table 6, ESM S5 |
-| 08 | `results/complexity_cn001_cpu.json`, `results/complexity_h100.json` | Table 5, ESM S7 |
+| 03 | `results/main_<ds>.json` | Table 1; holdout column of ESM Table S6 |
+| 04 | `results/ablation_rlvs.json` | superseded by 15 |
+| 05 | `results/cross_dataset.json` | ESM Table S7 (transfer matrix) |
+| 06 | `results/xai_temporal_rlvs.json`, `results/synthetic_xai_benchmark.json` | ESM Tables S12 and S13 |
+| 07 | `results/robustness_rlvs.json` | Figure 2b; ESM Tables S10 and S11 |
+| 08 | `results/complexity_cn001_cpu.json`, `results/complexity_h100.json` | Section 5.6; ESM Table S15 |
 | 09 | `results/temporal_probe*.json` | superseded by 10 |
-| 10 | `results/temporal_probe*.json` | the probe with 20 permutations, flip rates and per-clip probability shifts |
-| 11 | `results/motion_control_<ds>.json` | the matched motion control |
-| 12 | `results/kfold_<ds>.json`, `results/preds_<ds>.json` | 10-fold, and the probabilities the ROC curve needs |
-| 13 | `results/semisynthetic_xai.json` | attribution on spliced real footage |
-| 14 | `results/*_industrial.json` | the sixth benchmark, end to end |
-| 15 | `results/ablation_rlvs.json` | the ablation at 20 seeds, with TOST |
-| 16 | `figures/gradcam_mobilenetv2.*` | the Grad-CAM panel, CPU only |
+| 10 | `results/temporal_probe*.json` | Figure 2a; ESM Tables S4 and S5 |
+| 11 | `results/motion_control_<ds>.json` | Table 3; ESM Table S8 |
+| 12 | `results/kfold_<ds>.json`, `results/preds_<ds>.json` | ESM Table S6, and the ROC curves of ESM Figure S2 |
+| 13 | `results/semisynthetic_xai.json` | ESM Table S14 |
+| 14 | `results/*_industrial.json` | the Industrial rows of Table 1 and of ESM Tables S4 to S8 |
+| 15 | `results/ablation_rlvs.json` | Table 2, at 20 seeds, with TOST |
+| 16 | `figures/gradcam_mobilenetv2.*` | Figure 3; ESM Figure S5 |
 
 Every one of those tables is written by `scripts/make_tables.py`, which reads
-this directory and emits the LaTeX bodies:
+this directory and emits the LaTeX rows in the layout the paper prints, each
+block headed by the label of the table it fills:
 
 ```bash
 python scripts/make_tables.py --results results --out tables.tex
