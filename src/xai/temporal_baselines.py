@@ -88,8 +88,8 @@ def temporal_shapley_sampling(features, head, class_index=1, n_samples=200,
                               rng=None, group=5):
     """Monte-Carlo Shapley values over frame groups.
 
-    This is the honest stand-in for TimeSHAP when the reference implementation
-    cannot be used: TimeSHAP computes event-level Shapley values by KernelSHAP
+    This stands in for TimeSHAP when the reference implementation cannot be
+    used: TimeSHAP computes event-level Shapley values by KernelSHAP
     over binary coalitions of events, with pruning. Here events are contiguous
     groups of `group` frames, coalitions are sampled uniformly, and an absent
     group is replaced by the sequence mean (TimeSHAP's background strategy).

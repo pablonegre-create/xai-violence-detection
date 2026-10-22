@@ -17,8 +17,8 @@ and the repository is laid out so you can check it rather than take our word
 for it:
 
 - `scripts/run_temporal_probe.py` is the experiment the claim rests on. It
-  needs no training — it loads cached descriptors and a trained head, permutes
-  the frame axis and re-runs the head — so the whole sweep takes minutes.
+  needs no training (it loads cached descriptors and a trained head, permutes
+  the frame axis and re-runs the head), so the whole sweep takes minutes.
 - `scripts/run_synthetic_xai_benchmark.py` is the control. On sequences with an
   event planted at a known offset, the same attribution methods recover it
   almost perfectly, which is what separates "the model has no temporal
@@ -58,7 +58,7 @@ conda activate xai_vd
 pip install -r requirements.txt
 ```
 
-TensorFlow 2.15 with `numpy<2` — newer numpy breaks the prebuilt wheels.
+TensorFlow 2.15 with `numpy<2`; newer numpy breaks the prebuilt wheels.
 `ultralytics` and `timeshap` are optional; the keyframe and TimeSHAP-comparison
 scripts degrade gracefully without them (the temporal comparison falls back to
 a sampling-based Shapley estimator and says so).
@@ -78,13 +78,13 @@ None of the datasets are redistributed here. Download them and point
 | Industrial Surveillance | 300 | github: `FathUMinUllah3797/VD_ConvLSTM_GRU` |
 
 The loaders expect two class subdirectories per dataset (`Violence/` and
-`NonViolence/`, or the equivalent names the Kaggle mirrors use — see
+`NonViolence/`, or the equivalent names the Kaggle mirrors use; see
 `src/data/datasets.py`). RWF-2000 keeps its official train/val split.
 
 Run `scripts/check_dataset_integrity.py` before anything else. Every mirror we
-downloaded ships byte-identical clips under different names — 14 groups in
+downloaded ships byte-identical clips under different names (14 groups in
 RLVS, 5 in the RWF-2000 training split, 3 in Hockey, 3 in Movies, 1 in Violent
-Flows — and one RLVS pair carries opposite labels. A random split puts about
+Flows), and one RLVS pair carries opposite labels. A random split puts about
 46% of each pair on opposite sides of the train/test boundary, so the splits in
 `src/data/datasets.py` are computed over duplicate *groups* instead of files.
 The Movies mirror has three redundant copies, which is why the table above says
@@ -93,8 +93,8 @@ The Movies mirror has three redundant copies, which is why the table above says
 UCF-Crime and XD-Violence are deliberately absent. They are untrimmed,
 weakly-labelled anomaly benchmarks scored with frame-level AUC / AP, so a
 trimmed binary clip classifier cannot be evaluated on them without wrapping it
-in a multiple-instance-learning head — a different model, not a different test
-set. See `docs/datasets.md`.
+in a multiple-instance-learning head, which is a different model and not a
+different test set. See `docs/datasets.md`.
 
 ## Running the experiments
 
@@ -162,7 +162,7 @@ python scripts/measure_complexity.py --cpu --out results/complexity_cpu.json
 python scripts/run_synthetic_xai_benchmark.py --out results/synthetic_xai_benchmark.json
 ```
 
-The first reports parameters, FLOPs and latency — all fixed by the
+The first reports parameters, FLOPs and latency, all fixed by the
 architecture, so weights are irrelevant. The second plants a short event at a
 known position in a synthetic sequence and checks whether each temporal
 explanation method recovers it. It is the only setting in which "correct"
@@ -190,9 +190,10 @@ python scripts/run_motion_control.py --dataset rwf2000 \
     --out results/motion_control_rwf2000.json
 ```
 
-It probes each arm too. On the appearance arm the probe should stay flat; on an
-arm that can see motion it should not, which is the same probe firing on real
-video rather than on a synthetic positive control.
+It probes each arm too. On RWF-2000 the difference arm gains 13.6 points and
+is still flat under the probe: the motion sits inside each per-frame
+descriptor, so a head that ignores order can use it. On RLVS the difference
+arm gains nothing.
 
 `scripts/run_semisynthetic_xai.py` is the other half of that argument. It
 scores the attribution methods against an event placed in real footage: a real

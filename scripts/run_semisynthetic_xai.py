@@ -2,9 +2,9 @@
 
 The synthetic benchmark plants an event in Gaussian noise. It establishes that
 the attribution methods can find a localised temporal signal at all, which is
-the control the paper needs, but a reviewer rightly said the task is far easier
-than real violence dynamics: the background has no structure to confuse the
-explainer.
+the control the paper needs, but as a reviewer pointed out the task is far
+easier than real violence dynamics: the background has no structure to confuse
+the explainer.
 
 This builds the same experiment on real video. A clip is a real non-violent
 RLVS clip into which a contiguous window of frames from a donor clip has been

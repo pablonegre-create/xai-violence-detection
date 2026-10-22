@@ -4,8 +4,8 @@ The figure carried through from the first version of this work came out of
 legacy/gradcam_definitive.py, which ran on VGG19: its panels are labelled
 "Block 1 Conv 2" to "Block 5 Conv 4", names that exist in VGG19 and nowhere in
 MobileNetV2. The caption described five inverted-residual stages while the
-picture showed something else. A reviewer asked for the visuals to be checked,
-and they were right.
+picture showed something else. It came to light when a reviewer asked for the
+visuals to be checked.
 
 This regenerates the maps from the fine-tuned MobileNetV2 checkpoint, labels
 the stages with the layer names the code actually reads, and overlays them on

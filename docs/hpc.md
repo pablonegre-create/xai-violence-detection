@@ -22,7 +22,7 @@ Host atos
 
 The repository is private, so a plain `git clone` will fail. Two options.
 
-**With a token** (preferred — you can `git pull` later):
+**With a token** (preferred, since you can `git pull` later):
 
 ```bash
 # on your laptop
@@ -48,7 +48,7 @@ scp -r code <user>@hpc-bisite.usal.es:~/xai-vd
 ```
 
 If you copy from Windows rather than cloning, check the line endings before
-submitting anything — `sbatch` rejects CRLF with *"Batch script contains DOS
+submitting anything: `sbatch` rejects CRLF with *"Batch script contains DOS
 line breaks"*:
 
 ```bash
@@ -99,7 +99,7 @@ pip install -r requirements.txt
 
 The plain `tensorflow` wheel ships no CUDA on Linux, so out of the box it runs
 on CPU and a 4 h job becomes days. Install the CUDA 12 wheels **from the login
-node** — compute nodes have no outbound network and the download will fail
+node**: compute nodes have no outbound network and the download will fail
 there:
 
 ```bash
@@ -135,7 +135,7 @@ capability 9.0. CUDA kernels will be jit-compiled from PTX, which could take
 
 That is expected: the TF 2.15 wheel carries no sm_90 cubins, so on an H100
 every kernel is compiled from PTX at first use, in every new process. Persist
-the compiled kernels so only the first run pays for it — the job files already
+the compiled kernels so only the first run pays for it; the job files already
 export these, but set them in your interactive session too:
 
 ```bash
@@ -149,7 +149,7 @@ Measured on cn001: 51.2 s cold, 7.3 s warm (conv 21.8 -> 2.0 s, cuDNN LSTM
 `compute capability 9.0` warning keeps printing regardless, because TF emits
 it whenever the architecture is absent from its cubin list; the timings are
 what tell you the cache is working. Do this once, from an interactive session, before
-submitting anything — otherwise the first batch job burns that time out of its
+submitting anything, otherwise the first batch job burns that time out of its
 own walltime, and `run_ablation.py`, which spawns one subprocess per variant,
 would pay it repeatedly.
 
@@ -196,7 +196,7 @@ kaggle datasets download -d naveenk903/movies-fight-detection-dataset -p movies 
 # Violent Flows: request from https://www.openu.ac.il/home/hassner/data/violentflows/
 ```
 
-Check the loaders find them before queueing anything — the Kaggle mirrors nest
+Check the loaders find them before queueing anything; the Kaggle mirrors nest
 the class folders differently from each other:
 
 ```bash
@@ -215,8 +215,8 @@ for d in ['rlvs','rwf2000','hockey','movies']:
 
 Expected roughly: rlvs 2000, rwf2000 2000, hockey 1000, movies 198, all
 balanced (the Movies mirror ships three redundant copies; see
-`datasets.md`). If a dataset fails, the class directory name is not in the alias list
-— add it to `VIOLENT_DIRS` / `PEACEFUL_DIRS` in `src/data/datasets.py`.
+`datasets.md`). If a dataset fails, the class directory name is not in the alias list;
+add it to `VIOLENT_DIRS` / `PEACEFUL_DIRS` in `src/data/datasets.py`.
 
 RWF-2000 keeps its own `train/` and `val/` folders; `index_rwf2000` handles it.
 
@@ -283,8 +283,8 @@ Jobs 10 to 16 are the second round of review. Only 11, 13 and 14 cost real
 time; the rest reuse the cached descriptors and finish in minutes. Job 16 asks
 for no GPU, so it does not queue behind the training jobs.
 
-Once all five heads exist, run the order probe. It is the cheapest — no training, just a permutation of the frame axis and one forward
-pass per test clip — and it is the one the paper's main claim rests on:
+Once all five heads exist, run the order probe. It is the cheapest, with no training, just a permutation of the frame axis and one
+forward pass per test clip, and it is the one the paper's main claim rests on:
 
 ```bash
 sbatch slurm/09_temporal_probe.sh                                  # ~2 min
@@ -341,7 +341,7 @@ Only the JSON files are needed to fill the tables; they are small.
 scp -r <user>@hpc-bisite.usal.es:~/xai-vd/results ./R1/results_hpc
 ```
 
-Checkpoints and feature caches stay on the cluster — the caches are several GB.
+Checkpoints and feature caches stay on the cluster; the caches are several GB.
 
 ## Gotchas
 
@@ -365,4 +365,4 @@ Checkpoints and feature caches stay on the cluster — the caches are several GB
 - Anything written to a compute node's local disk disappears when the job ends.
   Write to `$HOME`; `/scratch` has no per-user directories at present.
 - `--partition=all` no longer exists; jobs referring to it are rejected.
-- Video decoding, not the GPU, is the bottleneck in job 02 — give it the CPUs.
+- Video decoding, not the GPU, is the bottleneck in job 02, so give it the CPUs.

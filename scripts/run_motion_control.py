@@ -16,9 +16,10 @@ schedule. The only difference is what the backbone was shown. If `diff` and
 dataset that is already separable from appearance, the gap is motion. If they
 do not, it is not, and the paper has to say so.
 
-The order probe is run on each arm as well. On the appearance arm it should
-stay flat; on an arm that can see motion it should not, which is the same probe
-firing on real video instead of on a synthetic positive control.
+The order probe is run on each arm as well. We expected it to stay flat on the
+appearance arm and move on the motion arm. It stays flat on both: the frame
+difference puts the motion inside each per-frame descriptor, so a head that
+ignores order can still use it. That is reported in the paper as it came out.
 
     python scripts/run_motion_control.py --dataset rwf2000 \\
         --features-rgb features/rwf2000 --features-diff features/rwf2000_diff \\

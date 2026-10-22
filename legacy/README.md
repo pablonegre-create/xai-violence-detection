@@ -2,7 +2,7 @@
 
 These are the scripts as they were written while the method was being worked
 out, kept unchanged (comments in Spanish, absolute Windows paths and all).
-They are here for provenance, not to be run — the maintained versions live in
+They are here for provenance, not to be run; the maintained versions live in
 `src/` and `scripts/`.
 
 | file | what it did | where it went |

@@ -34,16 +34,16 @@ detection, scored with frame-level ROC-AUC (UCF-Crime) or average precision
 snippet bags.
 
 A trimmed binary clip classifier cannot be evaluated on either without being
-wrapped in an MIL head — ranking snippets inside a bag, with a ranking loss
+wrapped in an MIL head that ranks snippets inside a bag, with a ranking loss
 over positive and negative bags. That is a different model with a different
 training objective, and its performance would say very little about the
 detector described in the paper. Reporting a number from such a wrapper as if
 it were "our model on UCF-Crime" would be misleading.
 
-So the generalisation evidence here comes from the four additional trimmed
-datasets plus the cross-dataset transfer matrix (train on one, test on the
-others with no adaptation), which measures the same thing — does the decision
-rule survive a domain change — on data where the comparison is meaningful.
+So the generalisation evidence here comes from the other trimmed datasets
+plus the cross-dataset transfer matrix (train on one, test on the others with
+no adaptation). It asks the same question, whether the decision rule survives
+a domain change, on data where the comparison is meaningful.
 
 ## Getting the data
 
@@ -81,7 +81,7 @@ Roughly 8 GB in total. The Kaggle mirrors nest the class folders differently
 from each other; `index_flat()` walks the tree and matches directory names
 case-insensitively against a list of known aliases (`Violence`, `fight`,
 `NonViolence`, `nonfight`, ...), so an extra level of nesting is fine but an
-unrecognised class name is not — add it to `VIOLENT_DIRS` / `PEACEFUL_DIRS`
+unrecognised class name is not; add it to `VIOLENT_DIRS` / `PEACEFUL_DIRS`
 if you hit one.
 
 ## Duplicate clips in the published mirrors
@@ -127,8 +127,9 @@ what should be reported rather than 200.
 40 frames per clip, sampled at equal intervals across the whole video, resized
 to 128×128, scaled to [0, 1]. Uniform sampling rather than a fixed-rate window
 means a 2-second clip and a 10-second clip both become 40 frames, at the cost
-of a different effective frame rate — acceptable here because all five
-datasets contain short clips (2–10 s).
+of a different effective frame rate. That is acceptable here because the five
+original datasets contain short clips (2–10 s) and the Industrial clips last
+about five seconds.
 
 Violent Flows is the one dataset where the 40-frame budget bites: its clips run
 26-163 frames (median 90), and 11 of the 246 fall below 40. Uniform sampling
