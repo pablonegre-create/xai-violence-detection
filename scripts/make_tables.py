@@ -177,8 +177,32 @@ def ablation_tost(R):
     return "\n".join(out)
 
 
-def motion_table(R, datasets=("rwf2000", "rlvs")):
-    """Table 3: the three inputs, the paired difference against the frames
+def splice_table(R):
+    """Table 3: attribution on real footage with a spliced event, the four
+    columns that fit a single column of the page. Time keeps three decimals:
+    rounded to two, block ablation reads 0.08 and the ratio to Shapley comes
+    out as 173 instead of the 163 the text quotes."""
+    j = load(R, "semisynthetic_xai.json")
+    if not j:
+        return ""
+    short = {"block_ablation": "Block ablation", "occlusion": "Occlusion",
+             "gradient_input": "Gradient $\\times$ input",
+             "integrated_gradients": "Integrated gradients",
+             "shapley_sampling": "Sampled Shapley", "random": "Random"}
+    out = []
+    for k in METHOD_ORDER:
+        v = j["aggregate"].get(k)
+        if not v:
+            continue
+        out.append("%s & %s & %s & %s & %s \\\\"
+                   % (short[k], fx(v["precision_at_k_mean"], 3),
+                      fx(v["pointing_mean"], 3), fx(v["mass_on_event_mean"], 3),
+                      "---" if k == "random" else fx(v["time_s_mean"], 3)))
+    return "\n".join(out)
+
+
+def motion_table(R, datasets=("rwf2000", "rlvs", "industrial")):
+    """Table 4: the three inputs, the paired difference against the frames
     arm, and the verdict of the order probe on each arm."""
     out = []
     for d in datasets:
@@ -440,6 +464,7 @@ def main():
         ("main text, tab:main caption (Wilson intervals)", wilson_line(R)),
         ("main text, tab:ablation", ablation_table(R)),
         ("main text, Section 5.2 (equivalence tests)", ablation_tost(R)),
+        ("main text, tab:splice", splice_table(R)),
         ("main text, tab:motion", motion_table(R)),
         ("ESM, tab:probefull", probe_table(R)),
         ("ESM, tab:probefunc", probe_function_table(R)),
